@@ -1,0 +1,89 @@
+.summary-container {
+    margin: 20px auto;
+    width: 80%;
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  h2 {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  
+  .summary-table th, 
+  .summary-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  .summary-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+  }
+  
+  .summary-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .execution-result {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #e6ffed;
+    border-left: 4px solid #4caf50;
+    font-family: monospace;
+    white-space: pre-wrap;
+  }
+  
+  .execution-result h3 {
+    margin-bottom: 10px;
+    font-size: 20px;
+    color: #4caf50;
+  }
+  
+  .button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  
+  .nav-button {
+    background-color: #4caf50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .nav-button:hover {
+    background-color: #45a049;
+  }
+  
+  .nav-button:active {
+    background-color: #3e8e41;
+  }
+  .validation-box {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  .validation-item {
+    background-color: #e7f4e4; /* Light green background */
+    border: 1px solid #4caf50; /* Green border */
+    border-radius: 4px;
+    padding: 5px 10px; /* Padding around the text */
+    margin: 5px; /* Space between items */
+    font-size: 14px; /* Font size for validation names */
+  }
