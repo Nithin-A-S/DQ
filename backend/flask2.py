@@ -1,4 +1,3 @@
-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import pandas as pd
@@ -24,7 +23,8 @@ table_names = [
 
 # Global dictionary to store expectations
 sums = {}
-table=""
+current_table = None  # Global variable to store the current table name
+
 # Fetch list of available tables
 @app.route('/table-list', methods=['GET'])
 def get_tables():
@@ -34,15 +34,19 @@ def get_tables():
 @app.route('/send-schema', methods=['POST'])
 def send_schema():
     data = request.json
-    table = data.get("table")
-    df = pd.read_csv(f"/Users/nithin/Desktop/DQreact-1/files/{table}")
-    
-    print(table)
+    global current_table  # Use the global variable
+    current_table = data.get("table")  # Store the table name
+
+    if not current_table:
+        return jsonify({"message": "No table selected"}), 400
+
+    df = pd.read_csv(f"/Users/nithin/Desktop/DQreact-1/files/{current_table}")
+
     if df is None:
         return jsonify({"message": "No file uploaded yet"}), 400
-    
+
     schema = [{"column": col, "type": str(df[col].dtype)} for col in df.columns]
-    return jsonify({"schema": schema})
+    return jsonify({"schema": schema, "table": current_table})  # Return the table name along with schema
 
 # List of possible expectations/validations
 exp = [
@@ -75,7 +79,6 @@ def validate_columns():
 @app.route('/summaryapi', methods=['GET'])
 def get_summary():
     global sums 
-    print(sums)
     return jsonify({"status": "success", "data": sums})
 
 # Function to map validations to Great Expectations methods
@@ -93,7 +96,6 @@ validation_map = {
     'isunique': lambda df, col: df.expect_column_values_to_be_unique(col),
 }
 
-# Map for complex expectations by their names
 expectation_map = {
     'expect_column_value_lengths_to_be_between': lambda df, col, params: df.expect_column_value_lengths_to_be_between(col, **params),
     'expect_column_kl_divergence_to_be_less_than': lambda df, col, params: df.expect_column_kl_divergence_to_be_less_than(col, **params),
@@ -150,19 +152,21 @@ def apply_validations_and_expectations(df, validations_and_expectations):
 # API to perform validation and expectations based on summary
 @app.route('/run-validations', methods=['POST'])
 def run_validations():
-    # data = request.json
-    # table = data.get("table")
-    global table
-    # Load the selected table
-    df = pd.read_csv(f"/Users/nithin/Desktop/DQreact-1/files/toughestsport 1.csv")
+    global current_table  # Use the global variable to access the current table name
+    
+    if current_table is None:
+        return jsonify({"message": "No table selected"}), 400
+    
+    # Load the selected table dynamically
+    print(current_table)
+    df = pd.read_csv(f"/Users/nithin/Desktop/DQreact-1/files/{current_table}")
     
     if df is None:
         return jsonify({"message": "No file uploaded yet"}), 400
     
     # Apply validations and expectations from the summary API (sums)
     validation_results = apply_validations_and_expectations(df, sums)
-    print(sums)
-    print(validation_results)
+    
     return jsonify({"validation_results": validation_results})
 
 if __name__ == '__main__':

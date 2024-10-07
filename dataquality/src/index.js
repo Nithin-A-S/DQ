@@ -9,7 +9,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-
+  <React.StrictMode>
     <Router>
       <Navbar title="My Custom Navbar" />
       <Routes>
@@ -17,6 +17,7 @@ root.render(
         <Route path="/explist" element={<ExpList />} /> {/* Add route for ExpList */}
       </Routes>
     </Router>
+     </React.StrictMode>
 
 );
 

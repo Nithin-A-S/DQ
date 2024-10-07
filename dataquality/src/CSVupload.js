@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import CustomExp from './components/CustomExp';
@@ -10,7 +9,7 @@ const App = () => {
   const [selectedTable, setSelectedTable] = useState('');
   const [schema, setSchema] = useState([]);
   const [expectations] = useState([
-    "isEmail", "isAlphabet", "isNull", "isBlank", "isBoolean", "isDecimal", "isNegativeNumber", "isPositiveNumber", "isNumber", "isUnique"
+    "isEmail", "isAlphabet", "isNull", "isBlank", "isBoolean", "isDecimal", "isNumber", "isUnique"
   ]);
   const [selectedValidations, setSelectedValidations] = useState({});
   const [popupOpen, setPopupOpen] = useState(false);
@@ -83,12 +82,16 @@ const App = () => {
   const handleValidationChange = (column, validation) => {
     setSelectedValidations(prevState => {
       const columnValidations = prevState[column] || [];
+      
+      // Check if the validation is already selected
       if (columnValidations.includes(validation)) {
+        // If selected, remove the validation
         return {
           ...prevState,
           [column]: columnValidations.filter(v => v !== validation)
         };
       } else {
+        // If not selected, add the validation
         return {
           ...prevState,
           [column]: [...columnValidations, validation]
@@ -108,7 +111,7 @@ const App = () => {
       .filter(col => col.validations.length > 0 || col.expectations.length > 0);
 
     console.log('Validation and Expectations Data:', validationData);
-    
+
     // Pass validation data through navigation state
     navigate('/explist', { state: { summaryData: validationData } });
 

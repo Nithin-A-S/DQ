@@ -8,26 +8,12 @@ const ExpList = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Restore saved summary data from localStorage when navigating back
-  useEffect(() => {
-    if (location.state && location.state.summaryData) {
-      setSummaryData(location.state.summaryData);
-      localStorage.setItem('summaryData', JSON.stringify(location.state.summaryData));
-    } else {
-      const savedSummaryData = JSON.parse(localStorage.getItem('summaryData'));
-      if (savedSummaryData) {
-        setSummaryData(savedSummaryData);
-      } else {
-        console.error('No summary data available');
-      }
-    }
-  }, [location.state]);
-
   const handleBackClick = () => {
-    navigate('/');
+    navigate('/');  // Navigate back without reloading the page
   };
 
   const handleExecute = () => {
+    console.log('Executing validations and expectations...');
     fetch('http://127.0.0.1:5000/run-validations', {
       method: 'POST',
       headers: {
@@ -38,57 +24,89 @@ const ExpList = () => {
       .then((response) => response.json())
       .then((data) => {
         setExecutionResult(data);
+        console.log('Execution result:', data);
       })
-      .catch((error) => {
-        console.error('Error executing:', error);
-      });
+      .catch((error) => console.error('Error executing validations:', error));
   };
+
+  useEffect(() => {
+    if (location.state?.summaryData) {
+      setSummaryData(location.state.summaryData);
+    }
+  }, [location.state]);
 
   return (
     <div className="summary-container">
-      <h2>Summary of Validations and Expectations</h2>
+      <h2>Validations and Expectations Summary</h2>
       <table className="summary-table">
         <thead>
           <tr>
-            <th>Column</th>
+            <th>Column Name</th>
             <th>Validations</th>
             <th>Expectations</th>
           </tr>
         </thead>
         <tbody>
-          {summaryData.map((col, index) => (
-            <tr key={index}>
-              <td>{col.column}</td>
-              <td>
-                <div className="validation-box">
-                  {col.validations.map((validation, idx) => (
-                    <div className="validation-item" key={idx}>{validation}</div>
-                  ))}
-                </div>
-              </td>
-              <td>
-                {Object.entries(col.expectations).map(([key, value]) => (
-                  <div key={key}>{key}: {JSON.stringify(value)}</div>
-                ))}
-              </td>
-            </tr>
+  {summaryData.map((column, index) => (
+    <tr key={index}>
+      <td>{column.column}</td>
+      <td>
+        <div className="validation-box">
+          {column.validations.map((validation, idx) => (
+            <div key={idx} className="validation-item">
+              {validation}
+            </div>
           ))}
-        </tbody>
-      </table>
-
-      {executionResult && (
-        <div className="execution-result">
-          <h3>Execution Result</h3>
-          <pre>{JSON.stringify(executionResult, null, 2)}</pre>
         </div>
-      )}
-
+      </td>
+      <td>
+        {Object.keys(column.expectations || {}).map((expKey, idx) => (
+          <div key={idx}>
+            {expKey}: {JSON.stringify(column.expectations[expKey])}
+          </div>
+        ))}
+      </td>
+    </tr>
+  ))}
+</tbody>
+      </table>
       <div className="button-group">
         <button className="nav-button" onClick={handleBackClick}>Back</button>
-        <button className="
-
-execute-button" onClick={handleExecute}>Execute</button>
+        <button className="nav-button" onClick={handleExecute}>Execute</button>
       </div>
+
+      {executionResult && (
+  <div className="execution-result">
+    <h3>Execution Result</h3>
+    <table className="execution-table">
+      <thead>
+        <tr>
+          <th>Expectation Type</th>
+          <th>Element Count</th>
+          <th>Unexpected Count</th>
+          <th>Unexpected %</th>
+          <th>Unexpected % (Non-Missing)</th>
+          <th>Unexpected % (Total)</th>
+          <th>Success</th>
+        </tr>
+      </thead>
+      <tbody>
+        {executionResult.validation_results.map((result, index) => (
+          <tr key={index} className={result.success ? 'row success' : 'row fail'}>
+            {/* Instead of a separate validation name column, we'll show it as part of the expectations column */}
+            <td>{result.expectation_config.expectation_type.replace(/_/g, ' ')}</td>
+            <td>{result.result.element_count}</td>
+            <td>{result.result.unexpected_count}</td>
+            <td>{result.result.unexpected_percent}</td>
+            <td>{result.result.unexpected_percent_nonmissing}</td>
+            <td>{result.result.unexpected_percent_total}</td>
+            <td>{result.success ? 'Pass' : 'Fail'}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+)}
     </div>
   );
 };
