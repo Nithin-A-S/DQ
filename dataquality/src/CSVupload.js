@@ -16,23 +16,23 @@ const App = () => {
   const [popsum, setPopsum] = useState(false);
   const [selectedColumnForPopup, setSelectedColumnForPopup] = useState('');
   const [columnExpectations, setColumnExpectations] = useState({});
-  const navigate = useNavigate(); 
+  const [showTables, setShowTables] = useState(false); // State to control table list visibility
+  const navigate = useNavigate();
 
   // Load saved state from localStorage on component mount
   useEffect(() => {
-    const savedValidations = JSON.parse(localStorage.getItem('selectedValidations'));
-    const savedExpectations = JSON.parse(localStorage.getItem('columnExpectations'));
+    const savedValidations = JSON.parse(localStorage.getItem('selectedValidations')) || {};
+    const savedExpectations = JSON.parse(localStorage.getItem('columnExpectations')) || {};
+    const savedSelectedTable = localStorage.getItem('selectedTable');
 
-    if (savedValidations) {
-      setSelectedValidations(savedValidations);
-    }
-
-    if (savedExpectations) {
-      setColumnExpectations(savedExpectations);
-    }
+    setSelectedValidations(savedValidations);
+    setColumnExpectations(savedExpectations);
+    setSelectedTable(savedSelectedTable || '');
+    
+    console.log('Loaded from localStorage:', { savedValidations, savedExpectations, savedSelectedTable });
   }, []);
 
-  // Save validations and expectations in localStorage whenever they change
+  // Save validations, expectations, and selected table in localStorage whenever they change
   useEffect(() => {
     localStorage.setItem('selectedValidations', JSON.stringify(selectedValidations));
   }, [selectedValidations]);
@@ -41,15 +41,16 @@ const App = () => {
     localStorage.setItem('columnExpectations', JSON.stringify(columnExpectations));
   }, [columnExpectations]);
 
+  useEffect(() => {
+    localStorage.setItem('selectedTable', selectedTable);
+  }, [selectedTable]);
+
   // Fetch the list of tables on component mount
   useEffect(() => {
     fetch('http://127.0.0.1:5000/table-list')
       .then(response => response.json())
       .then(data => {
         setTableList(data.table);
-        if (data.table.length > 0) {
-          setSelectedTable(data.table[0]);
-        }
       })
       .catch(error => console.error('Error fetching table list:', error));
   }, []);
@@ -65,14 +66,19 @@ const App = () => {
       .then(response => response.json())
       .then(data => {
         setSchema(data.schema);
-        const initialValidations = {};
-        const initialExpectations = {};
+
+        // Preserve existing validations and expectations
+        const updatedValidations = {};
+        const updatedExpectations = {};
         data.schema.forEach(col => {
-          initialValidations[col.column] = [];
-          initialExpectations[col.column] = [];
+          updatedValidations[col.column] = selectedValidations[col.column] || [];
+          updatedExpectations[col.column] = columnExpectations[col.column] || [];
         });
-        setSelectedValidations(initialValidations);
-        setColumnExpectations(initialExpectations);
+
+        setSelectedValidations(updatedValidations);
+        setColumnExpectations(updatedExpectations);
+        
+        console.log('Updated Validations and Expectations after schema fetch:', { updatedValidations, updatedExpectations });
       })
       .catch(error => console.error('Error fetching schema:', error));
     }
@@ -82,21 +88,13 @@ const App = () => {
   const handleValidationChange = (column, validation) => {
     setSelectedValidations(prevState => {
       const columnValidations = prevState[column] || [];
-      
-      // Check if the validation is already selected
-      if (columnValidations.includes(validation)) {
-        // If selected, remove the validation
-        return {
-          ...prevState,
-          [column]: columnValidations.filter(v => v !== validation)
-        };
-      } else {
-        // If not selected, add the validation
-        return {
-          ...prevState,
-          [column]: [...columnValidations, validation]
-        };
-      }
+      const isChecked = columnValidations.includes(validation);
+      return {
+        ...prevState,
+        [column]: isChecked
+          ? columnValidations.filter(v => v !== validation) // Remove if already selected
+          : [...columnValidations, validation] // Add if not selected
+      };
     });
   };
 
@@ -112,7 +110,6 @@ const App = () => {
 
     console.log('Validation and Expectations Data:', validationData);
 
-    // Pass validation data through navigation state
     navigate('/explist', { state: { summaryData: validationData } });
 
     fetch('http://127.0.0.1:5000/validate_columns', {
@@ -130,7 +127,7 @@ const App = () => {
     setPopupOpen(true);
   };
 
-  const openPopsum = (column) => {
+  const openPopsum = () => {
     setPopsum(true);
   };
 
@@ -142,22 +139,29 @@ const App = () => {
     }));
   };
 
+  const handleShowTables = () => {
+    setShowTables(true); // Show the table list when button is clicked
+  };
+
   return (
     <div className="main-box">
       <div className="container">
         <div className="table-list">
           <h2>Select Tables</h2>
-          <ul className="table-items">
-            {tableList.map((table, index) => (
-              <li
-                key={index}
-                className={`table-item ${selectedTable === table ? 'selected' : ''}`}
-                onClick={() => setSelectedTable(table)}
-              >
-                {table}
-              </li>
-            ))}
-          </ul>
+          <button onClick={handleShowTables}>Show Tables</button>
+          {showTables && ( // Only show the table list if showTables is true
+            <ul className="table-items">
+              {tableList.map((table, index) => (
+                <li
+                  key={index}
+                  className={`table-item ${selectedTable === table ? 'selected' : ''}`}
+                  onClick={() => setSelectedTable(table)}
+                >
+                  {table}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <div className="schema-section">
@@ -194,7 +198,7 @@ const App = () => {
                       </td>
                       <td>
                         <button className="button-37" onClick={() => openPopup(col.column)}>Add</button>
-                        <button className="button-show" onClick={() => openPopsum()}>Summary</button>
+                        <button className="button-show" onClick={openPopsum}>Summary</button>
                       </td>
                     </tr>
                   ))

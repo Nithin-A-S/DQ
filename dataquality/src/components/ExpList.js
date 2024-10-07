@@ -47,28 +47,28 @@ const ExpList = () => {
           </tr>
         </thead>
         <tbody>
-  {summaryData.map((column, index) => (
-    <tr key={index}>
-      <td>{column.column}</td>
-      <td>
-        <div className="validation-box">
-          {column.validations.map((validation, idx) => (
-            <div key={idx} className="validation-item">
-              {validation}
-            </div>
+          {summaryData.map((column, index) => (
+            <tr key={index}>
+              <td>{column.column}</td>
+              <td>
+                <div className="validation-box">
+                  {column.validations.map((validation, idx) => (
+                    <div key={idx} className="validation-item">
+                      {validation}
+                    </div>
+                  ))}
+                </div>
+              </td>
+              <td>
+                {Object.keys(column.expectations || {}).map((expKey, idx) => (
+                  <div key={idx}>
+                    {expKey}: {JSON.stringify(column.expectations[expKey])}
+                  </div>
+                ))}
+              </td>
+            </tr>
           ))}
-        </div>
-      </td>
-      <td>
-        {Object.keys(column.expectations || {}).map((expKey, idx) => (
-          <div key={idx}>
-            {expKey}: {JSON.stringify(column.expectations[expKey])}
-          </div>
-        ))}
-      </td>
-    </tr>
-  ))}
-</tbody>
+        </tbody>
       </table>
       <div className="button-group">
         <button className="nav-button" onClick={handleBackClick}>Back</button>
@@ -76,37 +76,38 @@ const ExpList = () => {
       </div>
 
       {executionResult && (
-  <div className="execution-result">
-    <h3>Execution Result</h3>
-    <table className="execution-table">
-      <thead>
-        <tr>
-          <th>Expectation Type</th>
-          <th>Element Count</th>
-          <th>Unexpected Count</th>
-          <th>Unexpected %</th>
-          <th>Unexpected % (Non-Missing)</th>
-          <th>Unexpected % (Total)</th>
-          <th>Success</th>
-        </tr>
-      </thead>
-      <tbody>
-        {executionResult.validation_results.map((result, index) => (
-          <tr key={index} className={result.success ? 'row success' : 'row fail'}>
-            {/* Instead of a separate validation name column, we'll show it as part of the expectations column */}
-            <td>{result.expectation_config.expectation_type.replace(/_/g, ' ')}</td>
-            <td>{result.result.element_count}</td>
-            <td>{result.result.unexpected_count}</td>
-            <td>{result.result.unexpected_percent}</td>
-            <td>{result.result.unexpected_percent_nonmissing}</td>
-            <td>{result.result.unexpected_percent_total}</td>
-            <td>{result.success ? 'Pass' : 'Fail'}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-)}
+        <div className="execution-result">
+          <h3>Execution Result</h3>
+          <table className="execution-table">
+            <thead>
+              <tr>
+                <th>Column Name</th>
+                <th>Validation Name</th>
+                <th>Element Count</th>
+                <th>Unexpected Count</th>
+                <th>Unexpected %</th>
+                <th>Unexpected % (Non-Missing)</th>
+                <th>Unexpected % (Total)</th>
+                <th>Success</th>
+              </tr>
+            </thead>
+            <tbody>
+              {executionResult.validation_results.map((result, index) => (
+                <tr key={index} className={result.success ? 'row success' : 'row fail'}>
+                  <td>{result.column_name}</td> {/* Use the correct column name here */}
+                  <td>{result.expectation_config.expectation_type.replace(/_/g, ' ')}</td>
+                  <td>{result.result.element_count}</td>
+                  <td>{result.result.unexpected_count}</td>
+                  <td>{result.result.unexpected_percent}</td>
+                  <td>{result.result.unexpected_percent_nonmissing}</td>
+                  <td>{result.result.unexpected_percent_total}</td>
+                  <td>{result.success ? 'Pass' : 'Fail'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };
