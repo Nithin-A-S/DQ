@@ -2,6 +2,7 @@
     background-color: #333;
     padding: 1rem;
     display: flex;
+    position: fixed;
     justify-content:flex-start;
     align-items: center;
     margin: 0;
@@ -14,4 +15,87 @@
     font-size: 1.5rem;
     font-family: Arial, sans-serif;
   }
-  
+  /* Basic Navbar Styles */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #333;
+  padding: 10px 20px;
+  color: white;
+  position: relative;
+  z-index: 1000;
+}
+
+.navbar-title {
+  margin: 0;
+  font-size: 24px;
+}
+
+/* Hamburger Icon */
+.hamburger {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  height: 24px;
+  width: 30px;
+}
+
+.line {
+  width: 100%;
+  height: 3px;
+  background-color: white;
+  margin: 2px 0;
+}
+
+/* Sidebar Styles */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -250px;
+  height: 100%;
+  width: 250px;
+  background-color: #333;
+  color: white;
+  transition: 0.3s;
+  padding-top: 60px;
+  z-index: 999;
+}
+
+.sidebar.open {
+  left: 0;
+}
+
+.menu {
+  list-style-type: none;
+  padding: 0;
+}
+
+.menu li {
+  padding: 15px 20px;
+  border-bottom: 1px solid #444;
+  text-decoration: none;
+  cursor: pointer;
+}
+.menu li a{
+  color: white;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.menu li:hover {
+  background-color: #555;
+}
+
+/* Overlay when the menu is open */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 998;
+  cursor: pointer;
+}

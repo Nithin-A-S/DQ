@@ -37,38 +37,46 @@ const ExpList = () => {
 
   return (
     <div className="summary-container">
-      <h2>Validations and Expectations Summary</h2>
+      <h2>Golbal rules and Custom rules Summary</h2>
       <table className="summary-table">
         <thead>
           <tr>
             <th>Column Name</th>
-            <th>Validations</th>
-            <th>Expectations</th>
+            <th>Global Rules</th>
+            <th>Custom Rules</th>
           </tr>
         </thead>
-        <tbody>
-          {summaryData.map((column, index) => (
-            <tr key={index}>
-              <td>{column.column}</td>
-              <td>
-                <div className="validation-box">
-                  {column.validations.map((validation, idx) => (
-                    <div key={idx} className="validation-item">
-                      {validation}
-                    </div>
-                  ))}
-                </div>
-              </td>
-              <td>
-                {Object.keys(column.expectations || {}).map((expKey, idx) => (
-                  <div key={idx}>
-                    {expKey}: {JSON.stringify(column.expectations[expKey])}
-                  </div>
-                ))}
-              </td>
-            </tr>
-          ))}
-        </tbody>
+<tbody>
+  {summaryData && summaryData.map((column, index) => (
+    <tr key={index}>
+      <td>{column.column}</td>
+      <td>
+        <div className="validation-box">
+          {(column.globalRules && column.globalRules.length > 0) ? (
+            column.globalRules.map((globalRules, idx) => (
+              <div key={idx} className="validation-item">
+                {globalRules}
+              </div>
+            ))
+          ) : (
+            <div>No Validations</div>  // Show message if no validations exist
+          )}
+        </div>
+      </td>
+      <td>
+        {column.customRules ? (
+          Object.keys(column.customRules).map((expKey, idx) => (
+            <div key={idx}>
+              {expKey}: {JSON.stringify(column.customRules[expKey])}
+            </div>
+          ))
+        ) : (
+          <div>No Expectations</div>  // Show message if no expectations exist
+        )}
+      </td>
+    </tr>
+  ))}
+</tbody>
       </table>
       <div className="button-group">
         <button className="nav-button" onClick={handleBackClick}>Back</button>
@@ -76,38 +84,38 @@ const ExpList = () => {
       </div>
 
       {executionResult && (
-        <div className="execution-result">
-          <h3>Execution Result</h3>
-          <table className="execution-table">
-            <thead>
-              <tr>
-                <th>Column Name</th>
-                <th>Validation Name</th>
-                <th>Element Count</th>
-                <th>Unexpected Count</th>
-                <th>Unexpected %</th>
-                <th>Unexpected % (Non-Missing)</th>
-                <th>Unexpected % (Total)</th>
-                <th>Success</th>
-              </tr>
-            </thead>
-            <tbody>
-              {executionResult.validation_results.map((result, index) => (
-                <tr key={index} className={result.success ? 'row success' : 'row fail'}>
-                  <td>{result.column_name}</td> {/* Use the correct column name here */}
-                  <td>{result.expectation_config.expectation_type.replace(/_/g, ' ')}</td>
-                  <td>{result.result.element_count}</td>
-                  <td>{result.result.unexpected_count}</td>
-                  <td>{result.result.unexpected_percent}</td>
-                  <td>{result.result.unexpected_percent_nonmissing}</td>
-                  <td>{result.result.unexpected_percent_total}</td>
-                  <td>{result.success ? 'Pass' : 'Fail'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+  <div className="execution-result">
+    <h3>Execution Result</h3>
+    <table className="execution-table">
+      <thead>
+        <tr>
+          <th>Column Name</th>
+          <th>Validation/Expectation</th>
+          <th>Element Count</th>
+          <th>Unexpected Count</th>
+          <th>Unexpected %</th>
+          <th>Unexpected % (Non-Missing)</th>
+          <th>Unexpected % (Total)</th>
+          <th>Success</th>
+        </tr>
+      </thead>
+      <tbody>
+        {executionResult.validation_results.map((result, index) => (
+          <tr key={index} className={result.success ? 'row success' : 'row fail'}>
+            <td>{result.expectation_config.kwargs.column}</td>
+            <td>{result.expectation_config.expectation_type.replace(/_/g, ' ')}</td>
+            <td>{result.result.element_count}</td>
+            <td>{result.result.unexpected_count}</td>
+            <td>{result.result.unexpected_percent}</td>
+            <td>{result.result.unexpected_percent_nonmissing}</td>
+            <td>{result.result.unexpected_percent_total}</td>
+            <td>{result.success ? 'Pass' : 'Fail'}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+)}
     </div>
   );
 };

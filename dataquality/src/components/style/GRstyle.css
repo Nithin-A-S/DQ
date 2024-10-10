@@ -1,0 +1,72 @@
+.global-rules-container {
+    padding: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: #333;
+  }
+  
+  p {
+    font-size: 16px;
+    margin-bottom: 20px;
+    color: #666;
+  }
+  
+  .expectations-list {
+    margin-top: 20px;
+  }
+  
+  .expectation-item {
+    background-color: #ffffff;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .expectation-item h3 {
+    font-size: 18px;
+    color: #007bff;
+    margin-bottom: 8px;
+  }
+  
+  .expectation-item p {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 12px;
+  }
+  
+  .inputs-section {
+    margin-top: 10px;
+  }
+  
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+  }
+  
+  .input-group label {
+    font-size: 14px;
+    margin-bottom: 5px;
+    color: #444;
+  }
+  
+  .input-group input {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .input-group input:focus {
+    outline: none;
+    border-color: #007bff;
+  }

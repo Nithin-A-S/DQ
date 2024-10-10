@@ -1,19 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import './style/CustomExp.css';
 
+
 const expectationsList = [
-  { id: 1, name: 'expect_column_values_to_be_between', inputs: ['min_value', 'max_value'] },
-  { id: 2, name: 'expect_column_values_to_be_in_set', inputs: ['value_set'] },
-  { id: 3, name: 'expect_column_pair_values_A_to_be_greater_than_B', inputs: ['column_B'] },
-  { id: 4, name: 'expect_column_values_to_match_regex', inputs: ['regex_pattern'] },
-  { id: 5, name: 'expect_column_value_lengths_to_be_between', inputs: ['min_length', 'max_length'] },
-  { id: 6, name: 'expect_column_values_to_be_unique', inputs: [] },
-  { id: 7, name: 'expect_column_values_to_not_be_null', inputs: [] },
-  { id: 8, name: 'expect_column_kl_divergence_to_be_less_than', inputs: ['max_kl_divergence'] },
-  { id: 9, name: 'expect_column_sum_to_equal', inputs: ['expected_sum'] },
-  { id: 10, name: 'expect_column_value_lengths_to_equal', inputs: ['length'] },
-  { id: 11, name: 'expect_column_values_to_be_of_type', inputs: ['expected_type'] },
-  { id: 12, name: 'expect_column_pair_values_A_to_be_less_than_B', inputs: ['column_B'] }
+  { id: 1, name: 'expect_column_values_to_match_regex', inputs: ['regex_pattern'] },
+  { id: 2, name: 'expect_column_mean_to_be_between', inputs: ['min_value', 'max_value'] },
+  { id: 3, name: 'expect_column_median_to_be_between', inputs: ['min_value', 'max_value'] },
+  { id: 4, name: 'expect_column_stdev_to_be_between', inputs: ['min_value', 'max_value'] },
+  { id: 5, name: 'expect_column_min_to_be_between', inputs: ['min_value', 'max_value'] },
+  { id: 6, name: 'expect_column_max_to_be_between', inputs: ['min_value', 'max_value'] },
+  { id: 7, name: 'expect_column_sum_to_be_between', inputs: ['min_value', 'max_value'] },
+  { id: 8, name: 'expect_column_values_to_be_in_type_list', inputs: ['type_list'] },
+  { id: 9, name: 'expect_column_values_to_match_json_schema', inputs: ['json_schema'] },
+  { id: 10, name: 'expect_multicolumn_values_to_be_unique', inputs: [] },
+  { id: 11, name: 'expect_multicolumn_sum_to_equal', inputs: ['target_value'] },
+  { id: 12, name: 'expect_table_row_count_to_be_between', inputs: ['min_value', 'max_value'] },
+  { id: 13, name: 'expect_table_column_count_to_be_between', inputs: ['min_value', 'max_value'] },
+  { id: 14, name: 'expect_table_row_count_to_equal', inputs: ['row_count'] },
+  { id: 15, name: 'expect_table_columns_to_match_ordered_list', inputs: ['column_list'] },
+  { id: 16, name: 'expect_column_values_to_match_strftime_format', inputs: ['strftime_format'] },
+  { id: 17, name: 'expect_column_value_z_scores_to_be_less_than', inputs: ['threshold'] },
 ];
 
 function CustomExp({ trigger, setTrigger, saveExpectations, column }) {  

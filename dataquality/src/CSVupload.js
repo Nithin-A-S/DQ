@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import CustomExp from './components/CustomExp';
-import Summary from './components/Summary';
+import SummaryPopup from './components/SummaryPopup';
 import { useNavigate } from 'react-router-dom';
 
 const App = () => {
@@ -12,19 +12,19 @@ const App = () => {
     "isEmail", "isAlphabet", "isNull", "isBlank", "isBoolean", "isDecimal", "isNumber", "isUnique"
   ]);
   const [selectedValidations, setSelectedValidations] = useState({});
+  const [summaryOpen, setSummaryOpen] = useState(false);
   const [popupOpen, setPopupOpen] = useState(false);
-  const [popsum, setPopsum] = useState(false);
   const [selectedColumnForPopup, setSelectedColumnForPopup] = useState('');
+  const [selectedColumnForSummary, setSelectedColumnForSummary] = useState(null);
   const [columnExpectations, setColumnExpectations] = useState({});
-  const [showTables, setShowTables] = useState(false); // State to control table list visibility
+  const [showTables, setShowTables] = useState(false);
   const navigate = useNavigate();
 
-  // Load saved state from localStorage on component mount
   useEffect(() => {
     const savedValidations = JSON.parse(localStorage.getItem('selectedValidations')) || {};
     const savedExpectations = JSON.parse(localStorage.getItem('columnExpectations')) || {};
     const savedSelectedTable = localStorage.getItem('selectedTable');
-
+    
     setSelectedValidations(savedValidations);
     setColumnExpectations(savedExpectations);
     setSelectedTable(savedSelectedTable || '');
@@ -32,7 +32,6 @@ const App = () => {
     console.log('Loaded from localStorage:', { savedValidations, savedExpectations, savedSelectedTable });
   }, []);
 
-  // Save validations, expectations, and selected table in localStorage whenever they change
   useEffect(() => {
     localStorage.setItem('selectedValidations', JSON.stringify(selectedValidations));
   }, [selectedValidations]);
@@ -45,7 +44,6 @@ const App = () => {
     localStorage.setItem('selectedTable', selectedTable);
   }, [selectedTable]);
 
-  // Fetch the list of tables on component mount
   useEffect(() => {
     fetch('http://127.0.0.1:5000/table-list')
       .then(response => response.json())
@@ -55,7 +53,6 @@ const App = () => {
       .catch(error => console.error('Error fetching table list:', error));
   }, []);
 
-  // Fetch schema when a table is selected
   useEffect(() => {
     if (selectedTable) {
       fetch('http://127.0.0.1:5000/send-schema', {
@@ -67,7 +64,6 @@ const App = () => {
       .then(data => {
         setSchema(data.schema);
 
-        // Preserve existing validations and expectations
         const updatedValidations = {};
         const updatedExpectations = {};
         data.schema.forEach(col => {
@@ -84,7 +80,6 @@ const App = () => {
     }
   }, [selectedTable]);
 
-  // Handle checkbox toggle for validations
   const handleValidationChange = (column, validation) => {
     setSelectedValidations(prevState => {
       const columnValidations = prevState[column] || [];
@@ -92,23 +87,25 @@ const App = () => {
       return {
         ...prevState,
         [column]: isChecked
-          ? columnValidations.filter(v => v !== validation) // Remove if already selected
-          : [...columnValidations, validation] // Add if not selected
+          ? columnValidations.filter(v => v !== validation)
+          : [...columnValidations, validation]
       };
     });
   };
 
-  // Handle "Next" button click
   const handleNextClick = () => {
     const validationData = schema
       .map(col => ({
         column: col.column,
-        validations: selectedValidations[col.column] || [],
-        expectations: columnExpectations[col.column] || [],
+        globalRules: selectedValidations[col.column] || [],  // Rename validations to globalRules
+        customRules: {  // Rename expectations to customRules
+          column: col.column,
+          expectations: columnExpectations[col.column] || {}
+        }
       }))
-      .filter(col => col.validations.length > 0 || col.expectations.length > 0);
+      .filter(col => col.globalRules.length > 0 || Object.keys(col.customRules.expectations).length > 0);
 
-    console.log('Validation and Expectations Data:', validationData);
+    console.log('Global Rules and Custom Rules Data:', validationData);
 
     navigate('/explist', { state: { summaryData: validationData } });
 
@@ -120,27 +117,28 @@ const App = () => {
     .then(response => response.json())
     .then(data => console.log('Submitted data:', data))
     .catch(error => console.error('Error submitting data:', error));
-  };
+};
 
   const openPopup = (column) => {
     setSelectedColumnForPopup(column);
     setPopupOpen(true);
   };
 
-  const openPopsum = () => {
-    setPopsum(true);
+  const openSummary = (column) => {
+    setSelectedColumnForSummary(column);
+    setSummaryOpen(true);
   };
-
-  // Save expectations from popup
   const savePopupExpectations = (newExpectations) => {
     setColumnExpectations(prevState => ({
       ...prevState,
-      [selectedColumnForPopup]: newExpectations.expectations,
+      [selectedColumnForPopup]: {
+        ...prevState[selectedColumnForPopup], // Keep the existing expectations for this column
+        ...newExpectations // Merge new expectations
+      }
     }));
   };
-
   const handleShowTables = () => {
-    setShowTables(true); // Show the table list when button is clicked
+    setShowTables(true);
   };
 
   return (
@@ -148,8 +146,8 @@ const App = () => {
       <div className="container">
         <div className="table-list">
           <h2>Select Tables</h2>
-          <button onClick={handleShowTables}>Show Tables</button>
-          {showTables && ( // Only show the table list if showTables is true
+          <button className="nav-button " onClick={handleShowTables}>Show Tables</button>
+          {showTables && (
             <ul className="table-items">
               {tableList.map((table, index) => (
                 <li
@@ -172,7 +170,7 @@ const App = () => {
                 <tr>
                   <th>Column Name</th>
                   <th>Data Type</th>
-                  <th>Validations</th>
+                  <th>Global Rules</th>
                   <th>Custom rules</th>
                 </tr>
               </thead>
@@ -198,7 +196,7 @@ const App = () => {
                       </td>
                       <td>
                         <button className="button-37" onClick={() => openPopup(col.column)}>Add</button>
-                        <button className="button-show" onClick={openPopsum}>Summary</button>
+                        <button className="button-37" onClick={() => openSummary(col)}>Summary</button>
                       </td>
                     </tr>
                   ))
@@ -223,10 +221,17 @@ const App = () => {
         saveExpectations={savePopupExpectations}
         column={selectedColumnForPopup}
       />
-      <Summary
-        trigger={popsum}
-        setTrigger={setPopsum}
-      />
+
+      {summaryOpen && selectedColumnForSummary && (
+        <SummaryPopup
+          trigger={summaryOpen}
+          setTrigger={setSummaryOpen}
+          
+          selectedColumn={selectedColumnForSummary}
+          selectedValidations={selectedValidations}
+          columnExpectations={columnExpectations}
+        />
+      )}
     </div>
   );
 };

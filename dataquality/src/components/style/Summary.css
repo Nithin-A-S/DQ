@@ -1,0 +1,89 @@
+/* Styles for SummaryPopup Component */
+
+.popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Ensures the popup appears on top */
+  }
+  
+  .popup-inner-1 {
+    background-color: white;
+    padding: 20px;
+    width: 50%;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    position: relative;
+  }
+  
+  .popup-inner h3 {
+    margin-bottom: 20px;
+    font-size: 1.5em;
+    color: #333;
+  }
+  
+  .summary-section {
+    margin-bottom: 20px;
+  }
+  
+  .summary-section h4 {
+    font-size: 1.2em;
+    color: #555;
+    margin-bottom: 10px;
+  }
+  
+  .summary-section ul {
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    justify-content: flex-start; /* Align items to the left */
+}
+
+.summary-section ul li {
+    background-color: #f4f4f4;
+    padding: 10px;
+    margin: 5px; /* Add margin between items */
+    border-radius: 5px;
+    color: #444;
+    width: 150px; /* Set a fixed width for each item */
+    box-sizing: border-box;
+    text-align: center; /* Center the text inside each box */
+}
+
+@media (max-width: 600px) {
+    .summary-section ul li {
+        width: 120px; /* Slightly smaller width for small screens */
+    }
+}
+  .summary-section ul li strong {
+    color: #333;
+  }
+  
+  .button-close {
+    background-color: #ff5c5c;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+  }
+  
+  .button-close:hover {
+    background-color: #ff3333;
+  }
+  
+  @media (max-width: 600px) {
+    .popup-inner {
+      width: 90%;
+    }
+  }

@@ -117,6 +117,7 @@ h1 {
   cursor: pointer;
   border-radius: 5px;
   margin-left: 10px;
+  margin-bottom: 10px;
 }
 
 .nav-button:hover {
@@ -191,6 +192,7 @@ h1 {
   color: #fff;
   cursor: pointer;
   padding: 6px 15px;
+  margin-left: 10px;
 
 }
 
