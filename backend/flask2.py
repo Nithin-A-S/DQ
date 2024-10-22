@@ -1,12 +1,17 @@
-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import pandas as pd
+from pyspark.sql import SparkSession
 import great_expectations as ge
+from great_expectations.dataset.sparkdf_dataset import SparkDFDataset
 
 app = Flask(__name__)
 CORS(app)
-#/Users/nithin/Documents/React projects/new1/DQ/files/annual-death.csv
+
+# Initialize Spark session
+spark = SparkSession.builder \
+    .appName("DataQualityApp") \
+    .getOrCreate()
+
 table_names = [
     "toughestsport 1.csv",
     "netflix_titles 2.csv",
@@ -23,9 +28,8 @@ table_names = [
     "employees.csv"
 ]
 
-# Global dictionary to store expectations
 sums = {}
-current_table = None  # Global variable to store the current table name
+current_table = None
 
 @app.route('/table-list', methods=['GET'])
 def get_tables():
@@ -34,19 +38,19 @@ def get_tables():
 @app.route('/send-schema', methods=['POST'])
 def send_schema():
     data = request.json
-    global current_table  # Use the global variable
-    current_table = data.get("table")  # Store the table name
+    global current_table
+    current_table = data.get("table")
 
     if not current_table:
         return jsonify({"message": "No table selected"}), 400
 
-    df = pd.read_csv(f"/Users/nithin/Documents/React projects/new1/DQ/files/{current_table}")
+    df = spark.read.csv(f"/Users/nithin/Documents/React projects/new1/DQ/files/{current_table}", header=True, inferSchema=True)
 
     if df is None:
         return jsonify({"message": "No file uploaded yet"}), 400
 
-    schema = [{"column": col, "type": str(df[col].dtype)} for col in df.columns]
-    return jsonify({"schema": schema, "table": current_table})  # Return the table name along with schema
+    schema = [{"column": col, "type": str(df.schema[col].dataType)} for col in df.columns]
+    return jsonify({"schema": schema, "table": current_table})
 
 exp = [
     "isemail",
@@ -72,9 +76,6 @@ def validate_columns():
     transformed_data = transform_rules(data)
     global sums
     sums = transformed_data
-    print("----------------")
-    print(sums)
-    print("----------------")
     return jsonify({"status": "success", "message": "Validations received", "data": data})
 
 @app.route('/summaryapi', methods=['GET'])
@@ -82,23 +83,23 @@ def get_summary():
     global sums 
     return jsonify({"status": "success", "data": sums})
 
-# Mapping validations to Great Expectations methods
+# Mapping validations to Great Expectations methods for PySpark
 validation_map = {
     'isemail': lambda df, col: df.expect_column_values_to_match_regex(col, r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'),
     'isalphabet': lambda df, col: df.expect_column_values_to_match_regex(col, r'^[A-Za-z]+$'),
     'isnull': lambda df, col: df.expect_column_values_to_be_null(col),
     'isblank': lambda df, col: df.expect_column_values_to_match_regex(col, r'^\s*$'),
-    'isboolean': lambda df, col: df.expect_column_values_to_be_of_type(col, 'bool'),
-    'isdecimal': lambda df, col: df.expect_column_values_to_be_of_type(col, 'float'),
+    'isboolean': lambda df, col: df.expect_column_values_to_be_of_type(col, 'BooleanType'),
+    'isdecimal': lambda df, col: df.expect_column_values_to_be_of_type(col, 'DoubleType'),
     'isnegativenumber': lambda df, col: df.expect_column_values_to_be_less_than(col, 0),
     'ispositivenumber': lambda df, col: df.expect_column_values_to_be_greater_than(col, 0),
-    'isnumber': lambda df, col: df.expect_column_values_to_be_of_type(col, 'int'),
+    'isnumber': lambda df, col: df.expect_column_values_to_be_of_type(col, 'IntegerType'),
     'notnull': lambda df, col: df.expect_column_values_to_not_be_null(col),
     'isunique': lambda df, col: df.expect_column_values_to_be_unique(col),
 }
 
 expectation_map = {
- 'expect_column_values_to_match_regex': lambda df, col, params: df.expect_column_values_to_not_match_regex(col, params['regex_pattern']),
+    'expect_column_values_to_match_regex': lambda df, col, params: df.expect_column_values_to_match_regex(col, params['regex_pattern']),
     'expect_column_mean_to_be_between': lambda df, col, params: df.expect_column_mean_to_be_between(col, min_value=params.get('min_value'), max_value=params.get('max_value')),
     'expect_column_median_to_be_between': lambda df, col, params: df.expect_column_median_to_be_between(col, min_value=params.get('min_value'), max_value=params.get('max_value')),
     'expect_column_stdev_to_be_between': lambda df, col, params: df.expect_column_stdev_to_be_between(col, min_value=params.get('min_value'), max_value=params.get('max_value')),
@@ -117,11 +118,10 @@ expectation_map = {
     'expect_column_value_z_scores_to_be_less_than': lambda df, col, params: df.expect_column_value_z_scores_to_be_less_than(col, params['threshold']),
 }
 
-# Apply validations and expectations
-# Apply validations and expectations
+# Apply validations and expectations using PySpark DataFrame
 def apply_validations_and_expectations(df, validations_and_expectations):
     results = []
-    df_ge = ge.from_pandas(df)  # Convert dataframe to Great Expectations compatible dataframe
+    df_ge = SparkDFDataset(df)  # Convert Spark dataframe to Great Expectations compatible dataframe
 
     for rule in validations_and_expectations:
         column = rule.get('column')
@@ -130,7 +130,6 @@ def apply_validations_and_expectations(df, validations_and_expectations):
             print(f"Column not found in the rule: {rule}")
             continue
 
-        # Apply global validation rules
         if 'globalRules' in rule:
             for validation in rule['globalRules']:
                 validation = validation.lower()
@@ -140,7 +139,6 @@ def apply_validations_and_expectations(df, validations_and_expectations):
                 else:
                     print(f"Validation {validation} not found")
 
-        # Apply custom rules (expectations)
         custom_rules = rule.get('customRules', {})
         if not custom_rules:
             print(f"No custom rules found for column: {column}")
@@ -151,62 +149,53 @@ def apply_validations_and_expectations(df, validations_and_expectations):
             for expectation_name, params in expectation.items():
                 expectation_name = expectation_name.lower()
                 if expectation_name in expectation_map:
-                    # Handle parameters dynamically for each expectation
                     result = expectation_map[expectation_name](df_ge, column, params)
                     results.append(result.to_json_dict())
                 else:
                     print(f"Expectation '{expectation_name}' not found for column: {column}")
 
     return results
+
 def transform_rules(data):
     def convert_numbers_recursively(item):
-        """
-        Recursively traverse through dictionaries and lists to convert numeric strings to integers/floats.
-        """
         if isinstance(item, dict):
             for key, value in item.items():
                 item[key] = convert_numbers_recursively(value)
         elif isinstance(item, list):
             return [convert_numbers_recursively(i) for i in item]
         else:
-            # Try to convert strings to integers or floats
             if isinstance(item, str) and item.isdigit():
-                return int(item)  # Convert to integer if the string represents an integer
+                return int(item)
             try:
-                return float(item) if isinstance(item, str) else item  # Convert to float if it's a numeric string
+                return float(item) if isinstance(item, str) else item
             except ValueError:
-                return item  # If conversion fails, return the original item
+                return item
 
         return item
 
-    # Iterate through each rule in the data and apply the conversion
     for item in data:
         if 'customRules' in item and isinstance(item['customRules'], dict):
             custom_rules = item['customRules']
             
-            # Check for expectations and apply conversion
             if 'expectations' in custom_rules:
                 expectations = custom_rules['expectations']
                 
-                # Fix nested 'expectations' issue
                 if isinstance(expectations, dict) and 'expectations' in expectations:
                     nested_expectations = expectations.pop('expectations')
                     
-                    # Convert the nested expectations to a list if it's a dict
                     if isinstance(nested_expectations, dict):
                         custom_rules['expectations'] = [nested_expectations]
                     else:
                         custom_rules['expectations'] = nested_expectations
                 else:
-                    # If it's a dict, ensure it's wrapped in a list
                     if isinstance(expectations, dict):
                         custom_rules['expectations'] = [expectations]
 
-                # Now apply the recursive number conversion
                 custom_rules['expectations'] = convert_numbers_recursively(custom_rules['expectations'])
                 
+   
+
     return data
-# Run validations and expectations
 @app.route('/run-validations', methods=['POST'])
 def run_validations():
     global current_table  # Use the global variable to access the current table name
@@ -214,17 +203,18 @@ def run_validations():
     if current_table is None:
         return jsonify({"message": "No table selected"}), 400
     
-    # Load the selected table dynamically
+    # Load the selected table dynamically using PySpark
     print(current_table)
-    df = pd.read_csv(f"/Users/nithin/Documents/React projects/new1/DQ/files/{current_table}")
+    df = spark.read.csv(f"/Users/nithin/Documents/React projects/new1/DQ/files/{current_table}", header=True, inferSchema=True)
     
-    if df is None:
-        return jsonify({"message": "No file uploaded yet"}), 400
-    print(sums)
-    # Apply validations and expectations from the summary API (sums)
+    if df is None or df.count() == 0:
+        return jsonify({"message": "No file uploaded or the file is empty"}), 400
+    
+    print(sums)  # `sums` contains the validation rules
+    
+    # Apply validations and expectations from the summary API (`sums`)
     validation_results = apply_validations_and_expectations(df, sums)
     
     return jsonify({"validation_results": validation_results})
-
 if __name__ == '__main__':
     app.run(debug=True)
