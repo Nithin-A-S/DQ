@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './style/CustomExp.css';
 
-
 const expectationsList = [
   { id: 1, name: 'expect_column_values_to_match_regex', inputs: ['regex_pattern'] },
   { id: 2, name: 'expect_column_mean_to_be_between', inputs: ['min_value', 'max_value'] },
@@ -22,9 +21,10 @@ const expectationsList = [
   { id: 17, name: 'expect_column_value_z_scores_to_be_less_than', inputs: ['threshold'] },
 ];
 
-function CustomExp({ trigger, setTrigger, saveExpectations, column }) {  
+function CustomExp({ trigger, setTrigger, saveExpectations, column, columnType }) {  
   const [expectations, setExpectations] = useState([]);
   const [formInputs, setFormInputs] = useState({});
+  const [expectationInputs, setExpectationInputs] = useState(expectationsList);
 
   useEffect(() => {
     if (trigger) {
@@ -32,6 +32,16 @@ function CustomExp({ trigger, setTrigger, saveExpectations, column }) {
       setFormInputs({});
     }
   }, [trigger]);
+
+  // Filter the expectations based on columnType
+  useEffect(() => {
+    const filteredExpectations =
+      columnType === 'integer'
+        ? expectationsList.filter(e => (e.id >= 2 && e.id <= 7) || (e.id >= 10 && e.id <= 17))
+        : expectationsList.filter(e => e.id < 2 || (e.id > 7 && e.id < 10));
+
+    setExpectationInputs(filteredExpectations);
+  }, [columnType]);
 
   // Handle adding a new expectation to the list
   const handleAddExpectation = () => {
@@ -86,7 +96,7 @@ function CustomExp({ trigger, setTrigger, saveExpectations, column }) {
                 onChange={(e) => handleSelectExpectation(index, e.target.value)}
               >
                 <option value="">-- Select Expectation --</option>
-                {expectationsList.map((expOption) => (
+                {expectationInputs.map((expOption) => (
                   <option key={expOption.id} value={expOption.name}>
                     {expOption.name}
                   </option>
@@ -94,7 +104,7 @@ function CustomExp({ trigger, setTrigger, saveExpectations, column }) {
               </select>
   
               {/* Dynamically render inputs based on selected expectation */}
-              {exp.selected && expectationsList.find(e => e.name === exp.selected).inputs.map((inputName) => (
+              {exp.selected && expectationInputs.find(e => e.name === exp.selected).inputs.map((inputName) => (
                 <div key={inputName} className="input-field">
                   <label>{inputName.replace('_', ' ')}:</label>
                   <input

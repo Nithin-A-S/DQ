@@ -17,6 +17,7 @@ const App = () => {
   const [selectedColumnForPopup, setSelectedColumnForPopup] = useState('');
   const [selectedColumnForSummary, setSelectedColumnForSummary] = useState(null);
   const [columnExpectations, setColumnExpectations] = useState({});
+  const [selectedColumnType, setSelectedColumnType] = useState('');
   const [showTables, setShowTables] = useState(false);
   const navigate = useNavigate();
 
@@ -117,10 +118,11 @@ const App = () => {
     .then(response => response.json())
     .then(data => console.log('Submitted data:', data))
     .catch(error => console.error('Error submitting data:', error));
-};
+  };
 
-  const openPopup = (column) => {
+  const openPopup = (column, type) => {
     setSelectedColumnForPopup(column);
+    setSelectedColumnType(type);
     setPopupOpen(true);
   };
 
@@ -128,6 +130,7 @@ const App = () => {
     setSelectedColumnForSummary(column);
     setSummaryOpen(true);
   };
+
   const savePopupExpectations = (newExpectations) => {
     setColumnExpectations(prevState => ({
       ...prevState,
@@ -137,6 +140,7 @@ const App = () => {
       }
     }));
   };
+
   const handleShowTables = () => {
     setShowTables(true);
   };
@@ -163,7 +167,6 @@ const App = () => {
         </div>
 
         <div className="schema-section">
-          <h2>Default validations</h2>
           <div className="scroll-box">
             <table>
               <thead>
@@ -195,7 +198,7 @@ const App = () => {
                         </div>
                       </td>
                       <td>
-                        <button className="button-37" onClick={() => openPopup(col.column)}>Add</button>
+                        <button className="button-37" onClick={() => openPopup(col.column, col.type)}>Add</button>
                         <button className="button-37" onClick={() => openSummary(col)}>Summary</button>
                       </td>
                     </tr>
@@ -220,13 +223,13 @@ const App = () => {
         setTrigger={setPopupOpen}
         saveExpectations={savePopupExpectations}
         column={selectedColumnForPopup}
+        columnType={selectedColumnType}  // Pass column type to CustomExp
       />
 
       {summaryOpen && selectedColumnForSummary && (
         <SummaryPopup
           trigger={summaryOpen}
           setTrigger={setSummaryOpen}
-          
           selectedColumn={selectedColumnForSummary}
           selectedValidations={selectedValidations}
           columnExpectations={columnExpectations}

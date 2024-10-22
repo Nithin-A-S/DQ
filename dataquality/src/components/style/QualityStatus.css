@@ -1,0 +1,55 @@
+.quality-status-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+  
+  .popup-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+    text-align: center;
+  }
+  
+  .close-button {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    float: right;
+  }
+  
+  .quality-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .quality-table th, .quality-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+  }
+  
+  .progress-bar-container {
+    width: 100%;
+    background-color: #eee;
+    border-radius: 4px;
+    overflow: hidden;
+    height: 20px;
+  }
+  
+  .progress-bar {
+    height: 100%;
+    transition: width 0.4s ease;
+  }

@@ -1,7 +1,7 @@
 .summary-container {
   margin: 20px auto;
   width: 80%;
-  background-color: #f9f9f9;
+  background-color: #124e66;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -11,6 +11,8 @@ h2 {
   text-align: center;
   font-size: 24px;
   margin-bottom: 20px;
+  color: #afdde5;
+
 }
 
 .summary-table, .execution-table {
@@ -21,28 +23,21 @@ h2 {
 
 .summary-table th, .execution-table th,
 .summary-table td, .execution-table td {
-  border: 1px solid #ddd;
+  border: 1px solid #d3d9d4;
   padding: 8px;
   text-align: left;
+  color: white;
 }
 
 .summary-table th, .execution-table th {
-  background-color: #f4f4f4;
+  background-color: #748d92;
   font-weight: bold;
+ 
+  
 }
 
-.execution-table tbody tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
 
-/* Success/Fail row coloring */
-.row.success {
-  background-color: #e6ffed; /* Light green for Pass */
-}
 
-.row.fail {
-  background-color: #ffe6e6; /* Light red for Fail */
-}
 
 .execution-result {
   margin-top: 20px;
@@ -76,13 +71,13 @@ h2 {
 }
 
 .summary-table .validation-item {
-  background-color: #e7f4e4; /* Light green background */
-  border: 1px solid #4caf50; /* Green border */
+  background-color: #afdde5; /* Light green background */
+  border: 1px solid #003135; /* Green border */
   border-radius: 4px;
   padding: 5px 10px;
   margin: 5px;
   font-size: 14px;
-  color: #2e7d32; /* Darker green text */
+  color: #003135; /* Darker green text */
 }
 
 /* Result table styles (same as before, no green box) */
@@ -96,28 +91,27 @@ h2 {
   border: 1px solid #ddd;
   padding: 8px;
   text-align: left;
+  color: black;
 }
 
 .execution-table th {
-  background-color: #f4f4f4;
+
   font-weight: bold;
 }
 
-.execution-table tbody tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
+
 
 /* Success/Fail row coloring */
 .row.success {
-  background-color: #e6ffed; /* Light green for Pass */
+  background-color: #4caf50; /* Light green for Pass */
 }
 
 .row.fail {
   background-color: #ffe6e6; /* Light red for Fail */
 }
 .nav-button {
-  background-color: #4caf50;
-  color: white;
+  background-color: #212a31;
+  color: #d3d9d4;
   padding: 10px 20px;
   border: none;
   border-radius: 5px;
@@ -127,9 +121,10 @@ h2 {
 }
 
 .nav-button:hover {
-  background-color: #45a049;
+  background-color: #d3d9d4;
+  color: #212a31;
 }
 
 .nav-button:active {
-  background-color: #3e8e41;
+  background-color: #748d92;
 }

@@ -31,7 +31,7 @@ const Navbar = () => {
         <ul className="menu">
           <li onClick={() => handleNavigation('/')}>Home</li>
           <li onClick={() => handleNavigation('/GlobalRules')}>Global Rules</li>
-          <li onClick={() => handleNavigation('/section2')}>Section 2</li>
+       
           <li onClick={() => handleNavigation('/section3')}>Section 3</li>
         </ul>
       </div>

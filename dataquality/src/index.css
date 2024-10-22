@@ -1,16 +1,63 @@
-/* General Container */
-.container {
-  margin: 20px;
-  font-family: Arial, sans-serif;
-  display: flex;
+
+.rules-box {
+  max-height: 150px;
+  overflow-y: auto;
+  padding: 10px;
+  display: grid;
+  grid-template-columns: repeat(3, 2fr);
+  gap: 3px;/* Space between the checkboxes */
+}
+/* Reset default styles */
+* {
+  box-sizing: border-box; /* Ensure padding and borders are included in element's total width and height */
+  margin: 0;
+  padding: 0;
+
 
 }
+
+/* Ensure body takes the full height of the viewport */
+body, html {
+  height: 100%;
+  width: 100%;
+  background-color: #2e3944;
+ /* Light background color for the body */
+  font-family: Arial, sans-serif; /* Global font */
+}
+
+/* Main container to fit the full page */
+.main-box {
+  display: flex;
+  flex-direction: column;
+ /* Full viewport height */
+}
+
+.container {
+  display: flex;
+  flex: 1; /* Make the container fill the remaining height */
+  margin: 20px; /* Margin around the container */
+  background-color: #124e66; /* White background for content */
+  border-radius: 8px; /* Optional: rounded corners */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Optional: subtle shadow */
+}
+
 /* Container for table list */
 .table-list {
-  margin-bottom: 20px;
-  width: 20%;
-}
+  width: 20%; /* Fixed width for table list */
+  padding: 10px;
+  height: 100%; /* Padding for content */
 
+
+}
+.rule-checkbox {
+  background-color: #afdde5; /* Light green background */
+  border: 1px solid #003135; /* Green border */
+  border-radius: 4px;
+  padding: 5px 10px;
+  margin: 5px;
+  font-size: 14px;
+  color: #003135;
+}
 /* Unordered list for the table items */
 .table-items {
   list-style-type: none; /* Remove default bullets */
@@ -18,14 +65,15 @@
   margin: 0;
 }
 
-/* Individual table items as list elements */
+/* Individual table items */
 .table-item {
   padding: 10px 15px;
-  background-color: #f9f9f9;
-  border-bottom: 1px solid #ddd;
+ margin:3px;
+  border: 1px solid #ddd;
+  background-color: #d3d9d4;
   cursor: pointer;
+  border-radius: 1px;
   transition: background-color 0.3s ease;
-  font-size: 16px;
 }
 
 /* Highlight selected table */
@@ -39,74 +87,41 @@
   background-color: #f0f0f0;
 }
 
-/* Optional: Styling for the last item (if no border desired) */
-.table-item:last-child {
-  border-bottom: none;
-}
-
+/* Schema Section */
 .schema-section {
-  flex-grow: 1;
+  flex-grow: 1; /* Take up remaining space */
+  padding: 10px; /* Padding around the schema section */
+  overflow-y: auto; /* Enable scrolling for the schema section */
 }
 
-h1 {
-  text-align: center;
-  color: #333;
-}
-
-.step-header h2 {
-  color: #333;
-  margin-top: 20px;
-}
-
-/* Table Selection Section */
-.table-selection {
-  margin-bottom: 20px;
-}
-
-.table-selection select {
-  padding: 10px;
-  width: 100%;
-  max-width: 400px;
-  font-size: 16px;
-  margin-top: 10px;
+/* Scrollable Box for Schema */
+.scroll-box {
+  max-height: 80vh; /* Set a max height for scrollable content */
+  overflow-y: auto; /* Enable vertical scrolling */
+  margin-top: 10px; /* Margin above the box */
 }
 
 /* Schema Table */
 .schema-section table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
-
 }
 
 .schema-section th, .schema-section td {
-  border: 1px solid #ccc;
+  border: 5px solid #ccc;
   padding: 10px;
   text-align: left;
+  color: #d3d9d4;
 }
 
 .schema-section th {
-  background-color: #f2f2f2;
-}
-
-.rule-tag {
-  background-color: #e0e0e0;
-  border-radius: 5px;
-  padding: 5px 10px;
-  margin-right: 5px;
-  font-size: 12px;
-}
-
-.rule-checkbox {
-  display: block;
-  margin-bottom: 5px;
+  background-color: #748d92;
 }
 
 /* Navigation Buttons */
 .button-group {
-  margin-top: 20px;
-  text-align: right;
-  align-self: flex-end;
+  margin-top: 10px; /* Space above buttons */
+  text-align: right; /* Align buttons to the right */
 }
 
 .nav-button {
@@ -117,82 +132,19 @@ h1 {
   cursor: pointer;
   border-radius: 5px;
   margin-left: 10px;
-  margin-bottom: 10px;
 }
 
 .nav-button:hover {
   background-color: #0056b3;
 }
-/* Scrollable Box for Schema */
-.scroll-box {
-  max-height: 550px; /* Adjust the height as needed */
-  overflow-y: auto;  /* Enables vertical scrolling */
-  border: 1px solid #ccc;  /* Optional: add a border around the box */
-  padding: 10px;
-  margin-top: 10px;
-}
 
-.schema-section table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-}
-
-.schema-section th, .schema-section td {
-  border: 1px solid #ccc;
-  padding: 10px;
-  text-align: left;
-}
-
-.schema-section th {
-  background-color: #f2f2f2;
-}
-/* Scrollable box for map rules checkboxes */
-.rules-box {
-  max-height: 150px;  /* Set a fixed height for the box */
-  overflow-y: auto;   /* Enable vertical scrolling */
- /* Optional: border around the box */
-  padding: 10px;
-  display: grid;  /* Arrange checkboxes in a grid */
-  grid-template-columns: repeat(3, 2fr);  /* Two checkboxes per row */
-  gap: 3px;     /* Space between the checkboxes */
-}
-
-.rule-checkbox {
-  display: flex;
-  align-items: center;
-  font-size: 14px; /* Adjusted font size for readability */
-}
-
-/* Ensure the table and other styles remain clean */
-.schema-section table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-}
-
-.schema-section th, .schema-section td {
-  border: 1px solid #ccc;
-  padding: 10px;
-  text-align: left;
-}
-
-.schema-section th {
-  background-color: #f2f2f2;
-}
-
-
-/* CSS */
+/* Button styles */
 .button-37 {
-  background-color: #13aa52;
-  border: 1px solid #13aa52;
+  background-color: #212a31;
+  border: 1px solid #2e3944;
   border-radius: 4px;
-  box-shadow: rgba(0, 0, 0, .1) 0 2px 4px 0;
-  box-sizing: border-box;
   color: #fff;
   cursor: pointer;
   padding: 6px 15px;
   margin-left: 10px;
-
 }
-
