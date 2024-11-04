@@ -11,7 +11,7 @@ CORS(app)
 spark = SparkSession.builder \
     .appName("DataQualityApp") \
     .getOrCreate()
-# FirstCommenttt
+
 
 table_names = [
     "toughestsport 1.csv",
