@@ -19,6 +19,7 @@ const App = () => {
   const [columnExpectations, setColumnExpectations] = useState({});
   const [selectedColumnType, setSelectedColumnType] = useState('');
   const [showTables, setShowTables] = useState(false);
+  const [columnDataType, setColumnDataType] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -67,14 +68,17 @@ const App = () => {
 
         const updatedValidations = {};
         const updatedExpectations = {};
+        const updatedColumnTypes = {};
         data.schema.forEach(col => {
           updatedValidations[col.column] = selectedValidations[col.column] || [];
           updatedExpectations[col.column] = columnExpectations[col.column] || [];
+          updatedColumnTypes[col.column] = col.type; // Store the data type
         });
 
         setSelectedValidations(updatedValidations);
         setColumnExpectations(updatedExpectations);
-        
+        setColumnDataType(updatedColumnTypes); // Set column data types
+
         console.log('Updated Validations and Expectations after schema fetch:', { updatedValidations, updatedExpectations });
       })
       .catch(error => console.error('Error fetching schema:', error));
@@ -135,9 +139,16 @@ const App = () => {
     setColumnExpectations(prevState => ({
       ...prevState,
       [selectedColumnForPopup]: {
-        ...prevState[selectedColumnForPopup], // Keep the existing expectations for this column
+        ...prevState[selectedColumnForPopup], 
         ...newExpectations // Merge new expectations
       }
+    }));
+  };
+
+  const handleDataTypeChange = (column, newType) => {
+    setColumnDataType(prevState => ({
+      ...prevState,
+      [column]: newType
     }));
   };
 
@@ -175,6 +186,7 @@ const App = () => {
                   <th>Data Type</th>
                   <th>Global Rules</th>
                   <th>Custom rules</th>
+                  <th>Rules Summary</th>
                 </tr>
               </thead>
               <tbody>
@@ -182,7 +194,17 @@ const App = () => {
                   schema.map((col, index) => (
                     <tr key={index}>
                       <td>{col.column}</td>
-                      <td>{col.type}</td>
+                      <td>
+                        <select
+                          value={columnDataType[col.column] || ''}
+                          onChange={(e) => handleDataTypeChange(col.column, e.target.value)}
+                        >
+                          <option value="string">String</option>
+                          <option value="integer">Integer</option>
+                          <option value="float">Float</option>
+                          <option value="boolean">Boolean</option>
+                        </select>
+                      </td>
                       <td>
                         <div className="rules-box">
                           {expectations.map((exp, expIndex) => (
@@ -198,9 +220,10 @@ const App = () => {
                         </div>
                       </td>
                       <td>
-                        <button className="button-37" onClick={() => openPopup(col.column, col.type)}>Add</button>
-                        <button className="button-37" onClick={() => openSummary(col)}>Summary</button>
+                        <button className="button-37" onClick={() => openPopup(col.column, columnDataType[col.column])}>Add</button>
+                       
                       </td>
+                      <td> <button className="button-37" onClick={() => openSummary(col)}>Summary</button></td>
                     </tr>
                   ))
                 ) : (
@@ -223,7 +246,7 @@ const App = () => {
         setTrigger={setPopupOpen}
         saveExpectations={savePopupExpectations}
         column={selectedColumnForPopup}
-        columnType={selectedColumnType}  // Pass column type to CustomExp
+        columnType={selectedColumnType}
       />
 
       {summaryOpen && selectedColumnForSummary && (
