@@ -4,6 +4,11 @@ from pyspark.sql import SparkSession
 import great_expectations as ge
 from great_expectations.dataset.sparkdf_dataset import SparkDFDataset
 from azure.storage.blob import BlobServiceClient
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+connection_string = os.getenv("CONN_STRING")
 
 app = Flask(__name__)
 CORS(app)
@@ -12,7 +17,7 @@ CORS(app)
 spark = SparkSession.builder \
     .appName("DataQualityApp") \
     .getOrCreate()
-connection_string =
+
 blob_service_client = BlobServiceClient.from_connection_string(connection_string)
 container_client = blob_service_client.get_container_client("datasets")
 blobs = container_client.list_blobs()
