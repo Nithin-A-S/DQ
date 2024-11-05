@@ -3,37 +3,31 @@ from flask_cors import CORS
 from pyspark.sql import SparkSession
 import great_expectations as ge
 from great_expectations.dataset.sparkdf_dataset import SparkDFDataset
+from azure.storage.blob import BlobServiceClient
 
 app = Flask(__name__)
 CORS(app)
 
-# Initialize Spark session
+
 spark = SparkSession.builder \
     .appName("DataQualityApp") \
     .getOrCreate()
+connection_string =
+blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+container_client = blob_service_client.get_container_client("datasets")
+blobs = container_client.list_blobs()
 
-table_names = [
-    "toughestsport 1.csv",
-    "netflix_titles 2.csv",
-    "annual-death.csv",
-    "users.csv",
-    "products.csv",
-    "orders.csv",
-    "categories.csv",
-    "customers.csv",
-    "invoices.csv",
-    "payments.csv",
-    "shipments.csv",
-    "suppliers.csv",
-    "employees.csv"
-]
 
 sums = {}
 current_table = None
+datasets_list=[]
+for blob in blobs:
+    datasets_list.append(blob.name)
+
 
 @app.route('/table-list', methods=['GET'])
 def get_tables():
-    return jsonify({"table": table_names})
+    return jsonify({"table": datasets_list})
 
 @app.route('/send-schema', methods=['POST'])
 def send_schema():
@@ -58,7 +52,7 @@ exp = [
     "isnull",
     "isblank",
     "isboolean",
-    "isdecimal",
+
     "isnegativenumber",
     "ispositivenumber",
     "isnumber",
@@ -90,7 +84,7 @@ validation_map = {
     'isnull': lambda df, col: df.expect_column_values_to_be_null(col),
     'isblank': lambda df, col: df.expect_column_values_to_match_regex(col, r'^\s*$'),
     'isboolean': lambda df, col: df.expect_column_values_to_be_of_type(col, 'BooleanType'),
-    'isdecimal': lambda df, col: df.expect_column_values_to_be_of_type(col, 'DoubleType'),
+
     'isnegativenumber': lambda df, col: df.expect_column_values_to_be_less_than(col, 0),
     'ispositivenumber': lambda df, col: df.expect_column_values_to_be_greater_than(col, 0),
     'isnumber': lambda df, col: df.expect_column_values_to_be_of_type(col, 'IntegerType'),
@@ -153,7 +147,8 @@ def apply_validations_and_expectations(df, validations_and_expectations):
                     results.append(result.to_json_dict())
                 else:
                     print(f"Expectation '{expectation_name}' not found for column: {column}")
-
+    print(1)
+    print(results)
     return results
 
 def transform_rules(data):
