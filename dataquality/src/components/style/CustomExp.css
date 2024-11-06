@@ -33,13 +33,13 @@
   color: #333;
 }
 select{
-  width: 25%;
+  /* width: 25%; */
   padding: 8px 15px;
   text-align: center;
 
 }
 select:hover{
-  width: 25%;
+  /* width: 25%; */
   padding: 8px 15px;
   text-align: center;
 ;

@@ -45,7 +45,7 @@ def send_schema():
     if not current_table:
         return jsonify({"message": "No table selected"}), 400
 
-    df = spark.read.csv(f"C:/Users/asnithin/Documents/DataAccelwerator/DQ/files/{current_table}", header=True, inferSchema=True)
+    df = spark.read.csv(f"D:/KaarMaterials/Data Domain/POC/Data Quality/DQ/files/{current_table}", header=True, inferSchema=True)
 
     if df is None:
         return jsonify({"message": "No file uploaded yet"}), 400
@@ -206,7 +206,7 @@ def run_validations():
     
     # Load the selected table dynamically using PySpark
     print(current_table)
-    df = spark.read.csv(f"C:/Users/asnithin/Documents/DataAccelwerator/DQ/files/{current_table}", header=True, inferSchema=True)
+    df = spark.read.csv(f"D:/KaarMaterials/Data Domain/POC/Data Quality/DQ/files/{current_table}", header=True, inferSchema=True)
     
     if df is None or df.count() == 0:
         return jsonify({"message": "No file uploaded or the file is empty"}), 400
