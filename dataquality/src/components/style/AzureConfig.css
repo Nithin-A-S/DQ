@@ -1,0 +1,78 @@
+/* AzureConfig.css */
+.azure-config-container {
+  max-width: 600px;
+  margin: 50px auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: #f9f9f9;
+}
+
+.azure-config-title {
+  font-size: 24px;
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.azure-config-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.azure-config-label {
+  font-size: 16px;
+  color: #555;
+}
+
+.azure-config-input {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.azure-config-input:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.azure-config-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.azure-config-button:hover {
+  background-color: #0056b3;
+}
+
+.azure-config-containers {
+  margin-top: 20px;
+  border-top: 1px solid #ddd;
+  padding-top: 20px;
+}
+
+.azure-config-container-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.azure-config-container-item {
+  padding: 8px;
+  font-size: 14px;
+  color: #333;
+  background-color: #e9ecef;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 8px;
+}

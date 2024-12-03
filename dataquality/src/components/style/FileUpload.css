@@ -1,0 +1,32 @@
+.tilecontainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 25px; /* Space between tiles */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+ 
+  /* Style each tile */
+  .tile {
+    width: 250px;
+    height: 250px;
+    background-color: #a77272; /* Light background color */
+    border-radius: 15px; /* Rounded corners */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Shadow effect */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+  }
+ 
+  .tile p {
+    margin: 0;
+    font-size: 1.2em;
+    color: #333;
+  }

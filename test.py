@@ -1,19 +1,19 @@
 import pandas as pd
-from great_expectations.dataset import PandasDataset
+import random
 
-# Create a sample dataset
+# Generate data
 data = {
-    "age": [23, 34, 45, 27, 29],
-    "name": ["Alice", "Bob", "Charlie", "Diana", "Evan"]
+    "ID": range(1, 101),
+    "Name": [f"Person_{i}" for i in range(1, 101)],
+    "Age": [random.randint(18, 60) for _ in range(100)],
+    "City": [random.choice(["New York", "Los Angeles", "Chicago", "Houston", "Phoenix"]) for _ in range(100)],
+    "Salary": [random.randint(30000, 100000) for _ in range(100)],
 }
+
+# Create DataFrame
 df = pd.DataFrame(data)
 
-# Load the dataframe into a Great Expectations dataset
-ge_dataset = PandasDataset(df)
+# Save to CSV
+df.to_csv("sample_dataset.csv", index=False)
 
-# Add an expectation for the column 'age' to be of type 'integer'
-ge_dataset.expect_column_values_to_be_of_type("age", "int")
-
-# Validate the expectations and print the result
-results = ge_dataset.validate()
-print(results)
+print("Dataset created and saved to 'sample_dataset.csv'")

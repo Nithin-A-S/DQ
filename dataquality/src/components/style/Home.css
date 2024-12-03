@@ -1,0 +1,33 @@
+/* Home.css */
+.home-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full viewport height */
+    background-color: #f0f0f0; /* Light background color */
+  }
+  
+  .button-container {
+    display: flex;
+    gap: 20px; /* Space between the buttons */
+  }
+  
+  .home-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007bff; /* Button color */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .home-button:hover {
+    background-color: #0056b3; /* Darker color when hovering */
+  }
+  
+  .home-button:focus {
+    outline: none;
+  }
+  

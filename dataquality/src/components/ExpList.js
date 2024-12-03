@@ -6,16 +6,18 @@ import QualityStatus from './QualityStatus';  // Import the popup component
 const ExpList = () => {
   const [summaryData, setSummaryData] = useState([]);
   const [executionResult, setExecutionResult] = useState(null);
-  const [showPopup, setShowPopup] = useState(false);  // State to control popup visibility
+  const [showPopup, setShowPopup] = useState(false); // State to control popup visibility
+  const [loading, setLoading] = useState(false); // State to control loader visibility
   const navigate = useNavigate();
   const location = useLocation();
 
   const handleBackClick = () => {
-    navigate('/');  // Navigate back without reloading the page
+    navigate('/'); // Navigate back without reloading the page
   };
 
   const handleExecute = () => {
     console.log('Executing validations and expectations...');
+    setLoading(true); // Show loader
     fetch('http://127.0.0.1:5000/run-validations', {
       method: 'POST',
       headers: {
@@ -28,15 +30,16 @@ const ExpList = () => {
         setExecutionResult(data);
         console.log('Execution result:', data);
       })
-      .catch((error) => console.error('Error executing validations:', error));
+      .catch((error) => console.error('Error executing validations:', error))
+      .finally(() => setLoading(false)); // Hide loader after execution
   };
 
   const handleDisplayClick = () => {
-    setShowPopup(true);  // Show the popup when "Display" button is clicked
+    setShowPopup(true); // Show the popup when "Display" button is clicked
   };
 
   const handleClosePopup = () => {
-    setShowPopup(false);  // Hide the popup when the close button is clicked
+    setShowPopup(false); // Hide the popup when the close button is clicked
   };
 
   useEffect(() => {
@@ -62,14 +65,14 @@ const ExpList = () => {
               <td>{column.column}</td>
               <td>
                 <div className="validation-box">
-                  {(column.globalRules && column.globalRules.length > 0) ? (
-                    column.globalRules.map((globalRules, idx) => (
+                  {column.globalRules && column.globalRules.length > 0 ? (
+                    column.globalRules.map((rule, idx) => (
                       <div key={idx} className="validation-item">
-                        {globalRules}
+                        {rule}
                       </div>
                     ))
                   ) : (
-                    <div>No Validations</div>  // Show message if no validations exist
+                    <div>No Validations</div>
                   )}
                 </div>
               </td>
@@ -81,20 +84,33 @@ const ExpList = () => {
                     </div>
                   ))
                 ) : (
-                  <div>No Expectations</div>  // Show message if no expectations exist
+                  <div>No Expectations</div>
                 )}
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+
       <div className="button-group">
-        <button className="nav-button" onClick={handleBackClick}>Back</button>
-        <button className="nav-button" onClick={handleExecute}>Execute</button>
+        <button className="nav-button" onClick={handleBackClick}>
+          Back
+        </button>
+        <button className="nav-button" onClick={handleExecute}>
+          Execute
+        </button>
         {executionResult && (
-          <button className="nav-button" onClick={handleDisplayClick}>Display</button>
+          <button className="nav-button" onClick={handleDisplayClick}>
+            Display
+          </button>
         )}
       </div>
+
+      {loading && (
+        <div className="loader-container">
+          <div className="loader"></div>
+        </div>
+      )}
 
       {executionResult && (
         <div className="execution-result">
@@ -131,10 +147,7 @@ const ExpList = () => {
       )}
 
       {showPopup && (
-        <QualityStatus
-          executionResult={executionResult}
-          onClose={handleClosePopup}  // Close the popup when the close button is clicked
-        />
+        <QualityStatus executionResult={executionResult} onClose={handleClosePopup} />
       )}
     </div>
   );

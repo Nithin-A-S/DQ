@@ -1,10 +1,11 @@
+// CSVUpload.js
 import React, { useState, useEffect } from 'react';
-import './App.css';
 import CustomExp from './components/CustomExp';
 import SummaryPopup from './components/SummaryPopup';
 import { useNavigate } from 'react-router-dom';
+import Button from '@mui/material/Button';
 
-const App = () => {
+const CSVUpload = () => {
   const [tableList, setTableList] = useState([]);
   const [selectedTable, setSelectedTable] = useState('');
   const [schema, setSchema] = useState([]);
@@ -238,7 +239,7 @@ const App = () => {
       </div>
 
       <div className="button-group">
-        <button className="nav-button" onClick={handleNextClick}>Next</button>
+        <button className="nav-button" variant="contained" onClick={handleNextClick}>Next</button>
       </div>
 
       <CustomExp
@@ -262,4 +263,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default CSVUpload;
