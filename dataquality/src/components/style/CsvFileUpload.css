@@ -1,0 +1,34 @@
+/* Center tilecontainer horizontally and vertically */
+.tilecontainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 143px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+
+/* Style each tile */
+.tile {
+    width: 324px;
+    height: 250px;
+    background-color: #f9f9f9;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* align-items: center; */
+    text-align: center;
+    padding: 0px 10px 0px 0px;
+}
+  
+.tile p {
+    margin: 28px 0px 29px 0px;
+    font-size: 1.2em;
+    color: #333;
+}

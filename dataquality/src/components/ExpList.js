@@ -9,14 +9,16 @@ const ExpList = () => {
   const [showPopup, setShowPopup] = useState(false);  // State to control popup visibility
   const navigate = useNavigate();
   const location = useLocation();
-
+  
+  console.log(summaryData);
+  
   const handleBackClick = () => {
     navigate('/');  // Navigate back without reloading the page
   };
 
   const handleExecute = () => {
     console.log('Executing validations and expectations...');
-    fetch('http://127.0.0.1:5000/run-validations', {
+    fetch('http://127.0.0.1:5000/data-run-validations', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

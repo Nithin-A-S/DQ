@@ -1,36 +1,19 @@
-from pyspark.sql import SparkSession
-import great_expectations as ge
+import pandas as pd
+from great_expectations.dataset import PandasDataset
 
-# Initialize a Spark session
-spark = SparkSession.builder \
-    .appName("Great Expectations with Spark") \
-    .getOrCreate()
+# Create a sample dataset
+data = {
+    "age": [23, 34, 45, 27, 29],
+    "name": ["Alice", "Bob", "Charlie", "Diana", "Evan"]
+}
+df = pd.DataFrame(data)
 
+# Load the dataframe into a Great Expectations dataset
+ge_dataset = PandasDataset(df)
 
+# Add an expectation for the column 'age' to be of type 'integer'
+ge_dataset.expect_column_values_to_be_of_type("age", "int")
 
-# Convert the list to a PySpark DataFrame
-df = spark.read.csv(f"/Users/nithin/Documents/React projects/new1/DQ/files/toughestsport 1.csv", header=True, inferSchema=True)
-
-
-# Convert Spark DataFrame into a Great Expectations SparkDFDataset
-ge_df = ge.dataset.SparkDFDataset(df)
-
-# 1. Expect that the 'age' column doesn't contain null values
-age_expectation = ge_df.expect_column_values_to_not_be_null("Power")
-
-# 2. You can add more expectations like this:
-
-
-# Collect all validation results
-validation_results = [
-    age_expectation,
-
-]
-
-# Print the validation results
-for idx, result in enumerate(validation_results, 1):
-    print(f"Validation {idx} - Success: {result['success']}")
-    print(f"Details: {result}\n")
-
-# Stop the Spark session
-spark.stop()
+# Validate the expectations and print the result
+results = ge_dataset.validate()
+print(results)

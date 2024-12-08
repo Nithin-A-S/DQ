@@ -1,127 +1,165 @@
-import React, { useState, useEffect } from 'react';
-import './App.css';
-import CustomExp from './components/CustomExp';
-import SummaryPopup from './components/SummaryPopup';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import "./App.css";
+import CustomExp from "./components/CustomExp";
+import SummaryPopup from "./components/SummaryPopup";
+import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 const App = () => {
   const [tableList, setTableList] = useState([]);
-  const [selectedTable, setSelectedTable] = useState('');
+  const [selectedTable, setSelectedTable] = useState("");
   const [schema, setSchema] = useState([]);
   const [expectations] = useState([
-    "isEmail", "isAlphabet", "isNull", "isBlank", "isBoolean", "isDecimal", "isNumber", "isUnique"
+    "isEmail",
+    "isAlphabet",
+    "isNull",
+    "isBlank",
+    "isBoolean",
+    "isDecimal",
+    "isNumber",
+    "isUnique",
   ]);
   const [selectedValidations, setSelectedValidations] = useState({});
   const [summaryOpen, setSummaryOpen] = useState(false);
   const [popupOpen, setPopupOpen] = useState(false);
-  const [selectedColumnForPopup, setSelectedColumnForPopup] = useState('');
-  const [selectedColumnForSummary, setSelectedColumnForSummary] = useState(null);
+  const [selectedColumnForPopup, setSelectedColumnForPopup] = useState("");
+  const [selectedColumnForSummary, setSelectedColumnForSummary] =
+    useState(null);
   const [columnExpectations, setColumnExpectations] = useState({});
-  const [selectedColumnType, setSelectedColumnType] = useState('');
+  const [selectedColumnType, setSelectedColumnType] = useState("");
   const [showTables, setShowTables] = useState(false);
   const [columnDataType, setColumnDataType] = useState({});
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const savedValidations = JSON.parse(localStorage.getItem('selectedValidations')) || {};
-    const savedExpectations = JSON.parse(localStorage.getItem('columnExpectations')) || {};
-    const savedSelectedTable = localStorage.getItem('selectedTable');
-    
-    setSelectedValidations(savedValidations);
-    setColumnExpectations(savedExpectations);
-    setSelectedTable(savedSelectedTable || '');
-    
-    console.log('Loaded from localStorage:', { savedValidations, savedExpectations, savedSelectedTable });
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('selectedValidations', JSON.stringify(selectedValidations));
-  }, [selectedValidations]);
-
-  useEffect(() => {
-    localStorage.setItem('columnExpectations', JSON.stringify(columnExpectations));
-  }, [columnExpectations]);
-
-  useEffect(() => {
-    localStorage.setItem('selectedTable', selectedTable);
-  }, [selectedTable]);
-
-  useEffect(() => {
-    fetch('http://127.0.0.1:5000/table-list')
-      .then(response => response.json())
-      .then(data => {
-        setTableList(data.table);
-      })
-      .catch(error => console.error('Error fetching table list:', error));
-  }, []);
+  const location = useLocation();
+  const state = location.state || {}; 
+  const csvfiles = state.csvfiles; 
+  const currUser = state.username;
+  console.log(csvfiles,currUser);
 
   useEffect(() => {
     if (selectedTable) {
-      fetch('http://127.0.0.1:5000/send-schema', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ table: selectedTable }),
+      fetch("http://127.0.0.1:5000/data-send-schema", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: currUser , csvfiles: selectedTable }),
       })
-      .then(response => response.json())
-      .then(data => {
-        setSchema(data.schema);
+        .then((response) => response.json())
+        .then((data) => {
+          setSchema(data.schema);
 
-        const updatedValidations = {};
-        const updatedExpectations = {};
-        const updatedColumnTypes = {};
-        data.schema.forEach(col => {
-          updatedValidations[col.column] = selectedValidations[col.column] || [];
-          updatedExpectations[col.column] = columnExpectations[col.column] || [];
-          updatedColumnTypes[col.column] = col.type; // Store the data type
-        });
+          const updatedValidations = {};
+          const updatedExpectations = {};
+          const updatedColumnTypes = {};
+          data.schema.forEach((col) => {
+            updatedValidations[col.column] =
+              selectedValidations[col.column] || [];
+            updatedExpectations[col.column] =
+              columnExpectations[col.column] || [];
+            updatedColumnTypes[col.column] = col.type; // Store the data type
+          });
 
-        setSelectedValidations(updatedValidations);
-        setColumnExpectations(updatedExpectations);
-        setColumnDataType(updatedColumnTypes); // Set column data types
+          setSelectedValidations(updatedValidations);
+          setColumnExpectations(updatedExpectations);
+          setColumnDataType(updatedColumnTypes); // Set column data types
 
-        console.log('Updated Validations and Expectations after schema fetch:', { updatedValidations, updatedExpectations });
-      })
-      .catch(error => console.error('Error fetching schema:', error));
+          console.log(
+            "Updated Validations and Expectations after schema fetch:",
+            { updatedValidations, updatedExpectations }
+          );
+        })
+        .catch((error) => console.error("Error fetching schema:", error));
     }
   }, [selectedTable]);
 
+  
+  useEffect(() => {
+    const savedValidations =
+      JSON.parse(localStorage.getItem("selectedValidations")) || {};
+    const savedExpectations =
+      JSON.parse(localStorage.getItem("columnExpectations")) || {};
+    const savedSelectedTable = localStorage.getItem("selectedTable");
+
+    setSelectedValidations(savedValidations);
+    setColumnExpectations(savedExpectations);
+    setSelectedTable(savedSelectedTable || "");
+
+    console.log("Loaded from localStorage:", {
+      savedValidations,
+      savedExpectations,
+      savedSelectedTable,
+    });
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "selectedValidations",
+      JSON.stringify(selectedValidations)
+    );
+  }, [selectedValidations]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "columnExpectations",
+      JSON.stringify(columnExpectations)
+    );
+  }, [columnExpectations]);
+
+  useEffect(() => {
+    localStorage.setItem("selectedTable", selectedTable);
+  }, [selectedTable]);
+
+  useEffect(() => {
+    if (csvfiles) {
+      setTableList(csvfiles);
+    } else {
+      console.error("No tables received from the previous page.");
+    }
+  }, [csvfiles]);
+
+
+
   const handleValidationChange = (column, validation) => {
-    setSelectedValidations(prevState => {
+    setSelectedValidations((prevState) => {
       const columnValidations = prevState[column] || [];
       const isChecked = columnValidations.includes(validation);
       return {
         ...prevState,
         [column]: isChecked
-          ? columnValidations.filter(v => v !== validation)
-          : [...columnValidations, validation]
+          ? columnValidations.filter((v) => v !== validation)
+          : [...columnValidations, validation],
       };
     });
   };
 
   const handleNextClick = () => {
     const validationData = schema
-      .map(col => ({
+      .map((col) => ({
         column: col.column,
-        globalRules: selectedValidations[col.column] || [],  // Rename validations to globalRules
-        customRules: {  // Rename expectations to customRules
+        globalRules: selectedValidations[col.column] || [], // Rename validations to globalRules
+        customRules: {
+          // Rename expectations to customRules
           column: col.column,
-          expectations: columnExpectations[col.column] || {}
-        }
+          expectations: columnExpectations[col.column] || {},
+        },
       }))
-      .filter(col => col.globalRules.length > 0 || Object.keys(col.customRules.expectations).length > 0);
+      .filter(
+        (col) =>
+          col.globalRules.length > 0 ||
+          Object.keys(col.customRules.expectations).length > 0
+      );
 
-    console.log('Global Rules and Custom Rules Data:', validationData);
+    console.log("Global Rules and Custom Rules Data:", validationData);
 
-    navigate('/explist', { state: { summaryData: validationData } });
+    navigate("/explist", { state: { summaryData: validationData } });
 
-    fetch('http://127.0.0.1:5000/validate_columns', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    fetch("http://127.0.0.1:5000/validate_columns", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(validationData),
     })
-    .then(response => response.json())
-    .then(data => console.log('Submitted data:', data))
-    .catch(error => console.error('Error submitting data:', error));
+      .then((response) => response.json())
+      .then((data) => console.log("Submitted data:", data))
+      .catch((error) => console.error("Error submitting data:", error));
   };
 
   const openPopup = (column, type) => {
@@ -136,19 +174,19 @@ const App = () => {
   };
 
   const savePopupExpectations = (newExpectations) => {
-    setColumnExpectations(prevState => ({
+    setColumnExpectations((prevState) => ({
       ...prevState,
       [selectedColumnForPopup]: {
-        ...prevState[selectedColumnForPopup], 
-        ...newExpectations // Merge new expectations
-      }
+        ...prevState[selectedColumnForPopup],
+        ...newExpectations, // Merge new expectations
+      },
     }));
   };
 
   const handleDataTypeChange = (column, newType) => {
-    setColumnDataType(prevState => ({
+    setColumnDataType((prevState) => ({
       ...prevState,
-      [column]: newType
+      [column]: newType,
     }));
   };
 
@@ -161,13 +199,17 @@ const App = () => {
       <div className="container">
         <div className="table-list">
           <h2>Select Tables</h2>
-          <button className="nav-button " onClick={handleShowTables}>Show Tables</button>
+          <button className="nav-button " onClick={handleShowTables}>
+            Show Tables
+          </button>
           {showTables && (
             <ul className="table-items">
               {tableList.map((table, index) => (
                 <li
                   key={index}
-                  className={`table-item ${selectedTable === table ? 'selected' : ''}`}
+                  className={`table-item ${
+                    selectedTable === table ? "selected" : ""
+                  }`}
                   onClick={() => setSelectedTable(table)}
                 >
                   {table}
@@ -196,8 +238,10 @@ const App = () => {
                       <td>{col.column}</td>
                       <td>
                         <select
-                          value={columnDataType[col.column] || ''}
-                          onChange={(e) => handleDataTypeChange(col.column, e.target.value)}
+                          value={columnDataType[col.column] || ""}
+                          onChange={(e) =>
+                            handleDataTypeChange(col.column, e.target.value)
+                          }
                         >
                           <option value="string">String</option>
                           <option value="integer">Integer</option>
@@ -211,8 +255,14 @@ const App = () => {
                             <label key={expIndex} className="rule-checkbox">
                               <input
                                 type="checkbox"
-                                checked={selectedValidations[col.column]?.includes(exp) || false}
-                                onChange={() => handleValidationChange(col.column, exp)}
+                                checked={
+                                  selectedValidations[col.column]?.includes(
+                                    exp
+                                  ) || false
+                                }
+                                onChange={() =>
+                                  handleValidationChange(col.column, exp)
+                                }
                               />
                               {exp}
                             </label>
@@ -220,10 +270,24 @@ const App = () => {
                         </div>
                       </td>
                       <td>
-                        <button className="button-37" onClick={() => openPopup(col.column, columnDataType[col.column])}>Add</button>
-                       
+                        <button
+                          className="button-37"
+                          onClick={() =>
+                            openPopup(col.column, columnDataType[col.column])
+                          }
+                        >
+                          Add
+                        </button>
                       </td>
-                      <td> <button className="button-37" onClick={() => openSummary(col)}>Summary</button></td>
+                      <td>
+                        {" "}
+                        <button
+                          className="button-37"
+                          onClick={() => openSummary(col)}
+                        >
+                          Summary
+                        </button>
+                      </td>
                     </tr>
                   ))
                 ) : (
@@ -238,7 +302,9 @@ const App = () => {
       </div>
 
       <div className="button-group">
-        <button className="nav-button" onClick={handleNextClick}>Next</button>
+        <button className="nav-button" onClick={handleNextClick}>
+          Next
+        </button>
       </div>
 
       <CustomExp
