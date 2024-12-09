@@ -12,7 +12,7 @@ const ExpList = () => {
   const location = useLocation();
 
   const handleBackClick = () => {
-    navigate('/'); // Navigate back without reloading the page
+    navigate('/rules'); // Navigate back without reloading the page
   };
 
   const handleExecute = () => {

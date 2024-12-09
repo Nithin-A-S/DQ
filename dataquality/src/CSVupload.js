@@ -3,7 +3,8 @@ import React, { useState, useEffect } from 'react';
 import CustomExp from './components/CustomExp';
 import SummaryPopup from './components/SummaryPopup';
 import { useNavigate } from 'react-router-dom';
-import Button from '@mui/material/Button';
+import './components/style/CsvUpload.css';
+
 
 const CSVUpload = () => {
   const [tableList, setTableList] = useState([]);
@@ -158,11 +159,11 @@ const CSVUpload = () => {
   };
 
   return (
-    <div className="main-box">
-      <div className="container">
-        <div className="table-list">
+    <div className="csvupload-main-box">
+      <div className="csvupload-container">
+        <div className="csvupload-table-list">
           <h2>Select Tables</h2>
-          <button className="nav-button " onClick={handleShowTables}>Show Tables</button>
+          <button className="csvupload-nav-button " onClick={handleShowTables}>Show Tables</button>
           {showTables && (
             <ul className="table-items">
               {tableList.map((table, index) => (
@@ -178,8 +179,8 @@ const CSVUpload = () => {
           )}
         </div>
 
-        <div className="schema-section">
-          <div className="scroll-box">
+        <div className="csvupload-schema-section">
+          <div className="csvupload-scroll-box">
             <table>
               <thead>
                 <tr>
@@ -207,9 +208,9 @@ const CSVUpload = () => {
                         </select>
                       </td>
                       <td>
-                        <div className="rules-box">
+                        <div className="csvupload-rules-box">
                           {expectations.map((exp, expIndex) => (
-                            <label key={expIndex} className="rule-checkbox">
+                            <label key={expIndex} className="csvupload-rule-checkbox">
                               <input
                                 type="checkbox"
                                 checked={selectedValidations[col.column]?.includes(exp) || false}
@@ -221,10 +222,10 @@ const CSVUpload = () => {
                         </div>
                       </td>
                       <td>
-                        <button className="button-37" onClick={() => openPopup(col.column, columnDataType[col.column])}>Add</button>
+                        <button className="csvupload-button-37" onClick={() => openPopup(col.column, columnDataType[col.column])}>Add</button>
                        
                       </td>
-                      <td> <button className="button-37" onClick={() => openSummary(col)}>Summary</button></td>
+                      <td> <button className="csvupload-button-37" onClick={() => openSummary(col)}>Summary</button></td>
                     </tr>
                   ))
                 ) : (
@@ -238,8 +239,8 @@ const CSVUpload = () => {
         </div>
       </div>
 
-      <div className="button-group">
-        <button className="nav-button" variant="contained" onClick={handleNextClick}>Next</button>
+      <div className="-csvuploadbutton-group">
+        <button className="csvupload-nav-button" variant="contained" onClick={handleNextClick}>Next</button>
       </div>
 
       <CustomExp

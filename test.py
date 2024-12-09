@@ -1,19 +1,19 @@
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+from pymongo import MongoClient
+import gridfs
 import pandas as pd
-import random
+from io import BytesIO
 
-# Generate data
-data = {
-    "ID": range(1, 101),
-    "Name": [f"Person_{i}" for i in range(1, 101)],
-    "Age": [random.randint(18, 60) for _ in range(100)],
-    "City": [random.choice(["New York", "Los Angeles", "Chicago", "Houston", "Phoenix"]) for _ in range(100)],
-    "Salary": [random.randint(30000, 100000) for _ in range(100)],
-}
+app = Flask(__name__)
+CORS(app)
 
-# Create DataFrame
-df = pd.DataFrame(data)
-
-# Save to CSV
-df.to_csv("sample_dataset.csv", index=False)
-
-print("Dataset created and saved to 'sample_dataset.csv'")
+# MongoDB Configuration
+con_string = "mongodb+srv://datamaccount:dataacc1234@clustermaccel.n4dwyfo.mongodb.net/?retryWrites=true&w=majority&appName=clustermaccel"
+client = MongoClient(con_string)
+database = client.get_database("csvfolder")
+tasks_collection = database.get_collection("DQ-datasets")
+users_collection = database.get_collection("DQ-users")
+username = "newuser1@gmail.com"
+user_data = tasks_collection.find_one({"username": username})
+print(user_data)

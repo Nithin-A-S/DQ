@@ -1,32 +1,84 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import Navbar from './components/Navbar';
 import reportWebVitals from './reportWebVitals';
 import CSVUpload from './CSVupload';
-import ExpList from './components/ExpList'; // Import the ExpList component
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import ExpList from './components/ExpList';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import GlobalRules from './components/GlobalRules';
-import Home from './components/Home';
+import NewReport from './components/NewReport';
 import AzureConfig from './components/AzureConfig';
-import FileUpload from './components/FileUpload';
+import Home from './components/Home';
+import LoginRegister from './components/LoginReg';
+import { UserProvider } from './context/UserContext.js';
+import LinkedSystem from './components/LinkedSystem.js';
+
+const App = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userName, setUserName] = useState('');
+
+  // Check for login status in localStorage on component mount
+  useEffect(() => {
+    const storedUserName = localStorage.getItem('userName');
+    if (storedUserName) {
+      setIsLoggedIn(true);
+      setUserName(storedUserName);
+    }
+  }, []);
+
+  const handleLoginSuccess = (userName) => {
+    setIsLoggedIn(true);
+    setUserName(userName);
+    localStorage.setItem('userName', userName); // Save username to localStorage
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setUserName('');
+    localStorage.removeItem('userName'); // Remove username from localStorage
+  };
+
+  return (
+    <UserProvider>
+      <Router>
+        {!isLoggedIn ? (
+          <div className="full-screen">
+            <Routes>
+              <Route
+                path="/"
+                element={<LoginRegister onLoginSuccess={handleLoginSuccess} />}
+              />
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+          </div>
+        ) : (
+          <div className="app-layout">
+            <Navbar title="DataQuality" onLogout={handleLogout} />
+            <div className="main-content">
+              <Routes>
+                <Route path="/home" element={<Home />} />
+                <Route path="/linkedsystem" element={<LinkedSystem />} />
+                <Route path="/report" element={<NewReport />} />
+                <Route path="/azure" element={<AzureConfig />} />
+                <Route path="/rules" element={<CSVUpload />} />
+                <Route path="/explist" element={<ExpList />} />
+                <Route path="/GlobalRules" element={<GlobalRules />} />
+                {/* <Route path="" element={<Navigate to="/home" />} /> */}
+              </Routes>
+            </div>
+          </div>
+        )}
+      </Router>
+    </UserProvider>
+  );
+};
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-
-    <Router>
-      <Navbar title="My Custom Navbar" />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/azure" element={<AzureConfig />} />
-        <Route path="/rules" element={<CSVUpload />} />
-        <Route path="/explist" element={<ExpList />} /> 
-        <Route path="/GlobalRules" element={<GlobalRules />} />
-        <Route path="/FileUpload" element={<FileUpload />} />
-      </Routes>
-    </Router>
-
-
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
 );
 
 reportWebVitals();

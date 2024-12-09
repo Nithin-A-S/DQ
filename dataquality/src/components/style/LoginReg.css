@@ -1,0 +1,104 @@
+/* File: LoginRegister.css */
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .log-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #e8eaf6;
+  }
+  
+  .box {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 350px;
+    text-align: center;
+  }
+  
+  .tabs {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  
+  .tabs button {
+    flex: 1;
+    padding: 10px 20px;
+    background-color: #f4f4f9;
+    border: 1px solid #c5cae9;
+    border-radius: 5px;
+    color: #3f51b5;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .tabs button.active {
+    background-color: #3f51b5;
+    color: white;
+  }
+  
+  .tabs button:not(:last-child) {
+    margin-right: 5px;
+  }
+  
+  label {
+    display: block;
+    text-align: left;
+    margin-bottom: 10px;
+    font-weight: bold;
+  }
+  
+  input {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #c5cae9;
+    border-radius: 5px;
+    font-size: 14px;
+  }
+  
+  button {
+    background-color: #3f51b5;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  button:hover {
+    background-color: #303f9f;
+  }
+  
+  button[type="button"] {
+    margin-left: 10px;
+    background-color: #e8eaf6;
+    color: #3f51b5;
+  }
+  
+  button[type="button"]:hover {
+    background-color: #c5cae9;
+  }
+  
+  .snackbar {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #ff5722;
+    color: white;
+    border-radius: 5px;
+    font-size: 14px;
+    display: inline-block;
+  }
+  

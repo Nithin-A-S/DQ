@@ -1,0 +1,180 @@
+/* Main container for the CSVUpload component */
+.csvupload-main-box {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  /* Header style */
+  .csvupload-header {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  /* Table List Section */
+  .csvupload-table-list {
+    margin-bottom: 30px;
+  }
+  
+  .csvupload-table-list h2 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #555;
+  }
+  
+  .csvupload-table-list .nav-button {
+    margin-bottom: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .csvupload-table-list .nav-button:hover {
+    background-color: #0056b3;
+  }
+  
+  .csvupload-table-list .table-items {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .csvupload-table-list .table-item {
+    padding: 10px;
+    background: #fff;
+    margin: 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, border-color 0.3s;
+  }
+  
+  .csvupload-table-list .table-item:hover {
+    background: #f1f1f1;
+    border-color: #bbb;
+  }
+  
+  .csvupload-table-list .table-item.selected {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+    border-color: #0056b3;
+  }
+  
+  /* Schema Section */
+  .csvupload-schema-section {
+    margin-top: 20px;
+  }
+  
+  .csvupload-scroll-box {
+    overflow-x: auto;
+  }
+  
+  .csvupload-schema-section table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  
+  .csvupload-schema-section table th, 
+  .csvupload-schema-section table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+  }
+  
+  .csvupload-schema-section table th {
+    background-color: #f1f1f1;
+    color: #333;
+    font-weight: bold;
+  }
+  
+  .csvupload-schema-section table tbody tr:hover {
+    background-color: #f9f9f9;
+  }
+  
+  .csvupload-schema-section select {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+/* Styling for rules checkboxes */
+.csvupload-rules-checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .csvupload-rule-checkbox {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    margin-right: 15px;
+  }
+  
+  .csvupload-rule-checkbox input[type="checkbox"] {
+    margin-right: 5px;
+    width: 16px;
+    height: 16px;
+  }
+  
+  .csvupload-button-37 {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .csvupload-button-37:hover {
+    background-color: #218838;
+  }
+  
+  .csvupload-summary-button {
+    background-color: #ffc107;
+    color: black;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .csvupload-summary-button:hover {
+    background-color: #e0a800;
+  }
+  
+  /* Button Group */
+  .csvupload-button-group {
+    text-align: right;
+    margin-top: 20px;
+  }
+  
+  .csvupload-button-group .nav-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+  }
+  
+  .csvupload-button-group .nav-button:hover {
+    background-color: #0056b3;
+  }
+  

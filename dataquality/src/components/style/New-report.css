@@ -1,0 +1,115 @@
+/* Global Container */
+.new-report-container {
+  padding: 30px;
+  background-color: #ffffff;
+  color: #000000;
+  font-family: 'Arial', sans-serif;
+  text-align: center;
+
+}
+
+/* Title Styling */
+.new-report-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #000000;
+}
+
+/* Description Styling */
+.new-report-description {
+  font-size: 1rem;
+  margin-bottom: 30px;
+  font-weight: normal;
+  color: #333333;
+  line-height: 1.5;
+}
+
+/* Options Section */
+.new-report-options {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 20px;
+  animation: slideIn 1s ease-out;
+}
+
+/* Individual Option Container */
+.new-report-option {
+  background-color: #f8f8f8;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  width: 200px;
+  transition: transform 0.3s ease;
+}
+
+.new-report-option:hover {
+  transform: scale(1.05);
+}
+
+/* Option Title */
+.new-report-option-title {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  font-weight: bold;
+  color: #000000;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Button Styling */
+.new-report-button {
+  font-size: 0.9rem;
+  padding: 12px 20px;
+  background-color: #000000;
+  color: #ffffff;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.new-report-button:hover {
+  background-color: #333333;
+  transform: translateY(-2px);
+}
+
+/* Hover Effect for Options */
+.new-report-option:hover .new-report-button {
+  background-color: #333333;
+}
+
+/* Note Section */
+.new-report-note {
+  margin-top: 30px;
+  font-size: 0.9rem;
+  color: #333333;
+  font-style: italic;
+  font-weight: normal;
+}
+
+/* Animation for container */
+@keyframes slideIn {
+  0% {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .new-report-options {
+    flex-direction: column;
+    gap: 20px;
+  }
+}

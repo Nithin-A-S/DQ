@@ -1,24 +1,29 @@
-/* General reset for the sidebar */
+/* Sidebar container */
 .fixed-sidebar {
   position: fixed;
   top: 0;
   left: 0;
-  width: 250px;
   height: 100%;
+  width: 200px;
   background-color: #2c3e50;
   color: white;
   display: flex;
   flex-direction: column;
-  padding: 20px;
+  padding: 10px;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  font-family: 'Roboto', sans-serif;
+  overflow-y: auto; /* Allow scrolling if content overflows */
 }
 
+/* Sidebar title */
 .sidebar-title {
-  font-size: 20px;
+  font-size: 22px;
   margin-bottom: 20px;
   text-align: center;
+  font-weight: 500;
 }
 
+/* Sidebar menu */
 .menu {
   list-style: none;
   padding: 0;
@@ -29,28 +34,79 @@
 .menu li {
   margin: 15px 0;
   cursor: pointer;
-  padding: 10px;
+  padding: 12px;
   border-radius: 5px;
   text-align: center;
+  font-size: 16px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
   transition: background-color 0.3s ease;
 }
 
-.menu li:hover {
-  background-color: #34495e;
+.menu li svg {
+  margin-right: 10px;
+  font-size: 18px;
 }
 
-.logout-button {
+.menu li:hover,
+.menu li.active {
+  background-color: #34495e;
+  font-weight: 600;
+}
+
+/* User section */
+.user-section {
   margin-top: auto;
-  padding: 10px;
-  border: none;
-  background-color: #e74c3c;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  padding-bottom: 20px; /* Space for hover visibility */
+}
+
+/* Username button */
+.username-btn {
+  padding: 8px 15px;
+  background-color: #34495e;
   color: white;
-  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+  text-align: center;
+  position: relative;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Change username color on hover */
+.username-btn:hover {
+  background-color: #e74c3c; /* Red on hover */
+  color: white; /* Keep text white */
+}
+
+/* Logout hover box */
+.logout-hover {
+  display: none;
+  position: absolute;
+  top: -40px; /* Ensure it appears above the username */
+  z-index: 1000;
+  background-color: grey; /* Teal or any other color */
+  color: white;
+  padding: 8px 12px;
   border-radius: 5px;
   cursor: pointer;
   text-align: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  font-size: 14px;
+  white-space: nowrap;
 }
 
-.logout-button:hover {
-  background-color: #c0392b;
+/* Show logout on hover */
+.username-btn:hover + .logout-hover {
+  display: block;
 }

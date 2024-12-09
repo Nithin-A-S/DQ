@@ -9,13 +9,15 @@ import tempfile
 import pandas as pd
 
 # Constants
-MONGO_CONN_STRING = ""
+MONGO_CONN_STRING = "mongodb+srv://datamaccount:dataacc1234@clustermaccel.n4dwyfo.mongodb.net/?retryWrites=true&w=majority&appName=clustermaccel"
 AZURE_CONTAINER_NAME = "datasets"
 
 # Initialize MongoDB
 client = MongoClient(MONGO_CONN_STRING)
 database = client["csvfolder"]
-tasks_collection = database["DQ"]
+tasks_collection = database["DQ-datasets"]
+users_collection = database.get_collection("DQ-users")
+
 
 # Initialize Flask app and Spark session
 app = Flask(__name__)
@@ -29,7 +31,33 @@ datasets_list = []
 sums = {}
 df = pd.DataFrame()
 
+
+@app.route('/register-user', methods=['POST'])
+def register_user():
+    try:
+        req_body = request.json
+        print(type(req_body),req_body)
+        req_body['connection_string'] = ''
+        req_body['access_key']=''
+        users_collection.insert_one(req_body)            
+        print("User Data Stored Successfully in the Database.")
+        return jsonify({"message": "User's Credentials Registered"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 # Routes
+@app.route('/read-users',methods=['GET'])
+def read_users():
+    resp = {}
+    try:
+        users = users_collection.find({})
+        output = [{'email' : user['email'], 'pass' : user['password']} for user in users]   #list comprehension
+        resp['data'] = output
+        print(resp)
+        return jsonify(resp), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route('/table-list', methods=['GET'])
 def get_tables():
     try:
@@ -129,6 +157,24 @@ def run_validations():
     validation_results = apply_validations_and_expectations(df, sums)
     return jsonify({"validation_results": validation_results})
 
+@app.route('/check-connection', methods=['GET'])
+def check_connection():
+    """
+    Check if the connection string exists in the MongoDB database.
+    """
+    global azure_conn_string
+    user = users_collection.find_one()
+    
+    if user and "connection_string" in user:
+        azure_conn_string = user["connection_string"]
+        try:
+            blob_service_client = BlobServiceClient.from_connection_string(azure_conn_string)
+            containers = blob_service_client.list_containers()
+            container_names = [container["name"] for container in containers]
+            return jsonify({"success": True, "connectionString": azure_conn_string, "containers": container_names})
+        except Exception as e:
+            return jsonify({"success": False, "message": str(e)}), 500
+    return jsonify({"success": False, "connectionString": None}), 200
 
 @app.route('/connect-azure', methods=['POST'])
 def connect_azure():
