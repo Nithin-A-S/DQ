@@ -13,6 +13,8 @@ import Home from './components/Home';
 import LoginRegister from './components/LoginReg';
 import { UserProvider } from './context/UserContext.js';
 import LinkedSystem from './components/LinkedSystem.js';
+import CsvFileUpload from './components/CsvFileUpload.js';
+import DataCsvUpload from './components/DataCsvUpload.js';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -58,8 +60,10 @@ const App = () => {
             <div className="main-content">
               <Routes>
                 <Route path="/home" element={<Home />} />
-                <Route path="/linkedsystem" element={<LinkedSystem />} />
-                <Route path="/report" element={<NewReport />} />
+  <Route path="/fileupload" element={<CsvFileUpload userName={userName} />} />
+  <Route path="/linkedsystem" element={<LinkedSystem userName={userName} />} />
+                <Route path="/datarulesupload" element={<DataCsvUpload />} />
+                <Route path="/report" element={<NewReport userName={userName}  />} />
                 <Route path="/azure" element={<AzureConfig />} />
                 <Route path="/rules" element={<CSVUpload />} />
                 <Route path="/explist" element={<ExpList />} />

@@ -6,7 +6,8 @@ const NewReport = () => {
   const navigate = useNavigate();
   const [isAzureConnected, setIsAzureConnected] = useState(false);
   const [loading, setLoading] = useState(true);
-
+  const userName = localStorage.getItem('userName');
+  console.log(userName)
   // Check Azure connection status when the component mounts
   useEffect(() => {
     fetch("http://127.0.0.1:5000/check-connection")
@@ -24,9 +25,8 @@ const NewReport = () => {
   }, []);
 
   const handleFileUpload = () => {
-    navigate("/fileupload");
+    navigate("/fileupload", { state: { userName } });
   };
-
   const handleAzureClick = () => {
     if (isAzureConnected) {
       // If Azure is connected, navigate to the rules page

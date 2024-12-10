@@ -277,5 +277,193 @@ expectation_map = {
     'expect_column_value_z_scores_to_be_less_than': lambda df, col, params: df.expect_column_value_z_scores_to_be_less_than(col, params['threshold']),
 }
 
+@app.route('/get-user-data', methods=['POST'])
+def get_user_data():
+    try:
+
+        req_data = request.json
+        print("------------->")
+        
+        username = user_session.get("user_id")
+        print(username)
+        if not username:
+            return jsonify({"error": "Username is required"}), 400
+
+        user_data = tasks_collection.find_one({"username": username},{"username": 1, "csvfiles": 1, "_id": 0})  # Projection: include only specific fields
+        print(user_data)
+        if not user_data:
+            return jsonify({"error": "User not found"}), 404
+
+        return jsonify({
+            "username": user_data["username"],
+            "csvfiles": user_data["csvfiles"]
+            
+        }), 200
+ 
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/data-dataset-upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part"}), 400
+ 
+    file = request.files['file']
+    # username = request.form.get('username')  # Expecting username as part of the form data
+    username = user_session.get("user_id")
+    if not username:
+        return jsonify({"error": "Username is required"}), 400
+ 
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+ 
+    try:
+        if file.filename.endswith('.csv'):
+            df = pd.read_csv(file)
+        elif file.filename.endswith(('.xls', '.xlsx')):
+            df = pd.read_excel(file)
+        else:
+            return jsonify({"error": "Unsupported file type"}), 400
+ 
+        # Convert DataFrame to dictionary
+        data = df.to_dict(orient='records')
+ 
+        # Use projection to retrieve only username and csvfiles
+        existing_user = tasks_collection.find_one(
+            {"username": username},
+            {"username": 1, "csvfiles": 1}  # Projection: Include only username and csvfiles
+        )
+ 
+        if existing_user:
+            tasks_collection.update_one(
+                {"username": username},
+                {
+                    "$addToSet": {"csvfiles": file.filename},  # Ensure no duplicates in csvfiles
+                    "$push": {"data": data}  # Append data as a new list
+                }
+            )
+            message = "File and data appended to existing user."
+        else:
+            new_document = {
+                "username": username,
+                "csvfiles": [file.filename],
+                "data": [data]
+            }
+            tasks_collection.insert_one(new_document)
+            message = "New user created, and data stored successfully."
+ 
+        return jsonify({"message": message}), 200
+ 
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/data-removedata', methods=['POST'])
+def removedata():
+    try:
+        # Parse the request JSON
+        request_data = request.json
+        username = user_session.get("user_id")
+        # username = request_data.get('username')
+        files_to_remove = request_data.get('csvfiles', [])
+ 
+        if not username or not files_to_remove:
+            return jsonify({"error": "Missing username or csvfiles in request."}), 400
+ 
+        # Find the document for the given username
+        user_doc = tasks_collection.find_one({"username": username})
+ 
+        if not user_doc:
+            return jsonify({"error": "User not found."}), 404
+ 
+        # Update the csvfiles and data fields by removing specified files and their corresponding data
+        csvfiles = user_doc.get('csvfiles', [])
+        data = user_doc.get('data', [])
+ 
+        for file in files_to_remove:
+            if file in csvfiles:
+                index = csvfiles.index(file)
+                csvfiles.pop(index)
+                data.pop(index)
+ 
+        # Update the document in MongoDB
+        tasks_collection.update_one(
+            {"username": username},
+            {"$set": {"csvfiles": csvfiles, "data": data}}
+        )
+ 
+        return jsonify({"message": "Files and data removed successfully.", "removedFiles": files_to_remove}), 200
+ 
+    except Exception as e:
+        return jsonify({"error": "An error occurred.", "details": str(e)}), 500
+    
+@app.route('/data-send-schema', methods=['POST'])
+def data_send_schema():
+    data = request.json
+    current_user = data.get('username')  # username
+    current_table = data.get('csvfiles')  # csvfile name
+    print(current_user,current_table)
+   
+    if not current_table or not current_user:
+        return jsonify({"message": "Username and table (csvfile) are required"}), 400
+   
+    document = tasks_collection.find_one(
+        {"username": current_user},
+        {"csvfiles": 1, "data": 1, "_id": 0}  # Only include necessary fields
+    )
+   
+    if not document:
+        return jsonify({"message": f"User '{current_user}' not found"}), 404
+   
+    try:
+        csvfile_index = document['csvfiles'].index(current_table)
+    except ValueError:
+        return jsonify({"message": f"CSV file '{current_table}' not found for user '{current_user}'"}), 404
+   
+    all_data = document['data'][csvfile_index]
+ 
+    # Print the extracted data for debugging
+    print("All data retrieved from MongoDB:", all_data, type(all_data), sep='\n')
+   
+    # Create a pandas DataFrame if data is available
+    pandas_df = pd.DataFrame(all_data)
+    print(pandas_df.info())
+    df = spark.createDataFrame(pandas_df)
+    print(df.printSchema())
+    if df is None:
+        return jsonify({"message": "No file uploaded yet"}), 400
+ 
+    schema = [{"column": col, "type": str(df.schema[col].dataType)} for col in df.columns]
+    print(schema)
+    return jsonify({"schema": schema, "table": current_table})
+ 
+ 
+user_session = {"user_id": None}  # Global variable to store user session
+
+@app.route('/userID-fetch', methods=['POST'])
+def set_user_id():
+    data = request.json
+    email = data.get('email')
+    if not email:
+        return jsonify({"error": "Email is required"}), 400
+
+    user_session['user_id'] = email
+    print(email)
+    return jsonify({"message": "User ID set successfully", "user_id": email}), 200
+
+@app.route('/userID-delete', methods=['DELETE'])
+def clear_user_id():
+    user_session['user_id'] = None
+    return jsonify({"message": "User ID cleared successfully"}), 200
+
+@app.route('/get-user-id', methods=['GET'])
+def get_user_id():
+    user_id = user_session.get('user_id')
+    if not user_id:
+        return jsonify({"error": "No user logged in"}), 400
+    return jsonify({"user_id": user_id}), 200
+
+
 if __name__ == '__main__':
     app.run(debug=True)

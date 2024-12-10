@@ -1,0 +1,149 @@
+/* Base Container */
+.data-csv-upload .main-box {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 20px auto;
+    width: 90%;
+    max-width: 1200px;
+  }
+  
+  /* Header */
+  .data-csv-upload h2 {
+    text-align: center;
+    font-size: 24px;
+    color: #333;
+  }
+  
+  /* Table List Section */
+  .data-csv-upload .table-list {
+    margin-bottom: 20px;
+  }
+  
+  .data-csv-upload .table-list .nav-button {
+    display: inline-block;
+    margin: 10px auto;
+    padding: 10px 20px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    text-align: center;
+    transition: background-color 0.3s ease;
+  }
+  
+  .data-csv-upload .table-list .nav-button:hover {
+    background-color: #45a049;
+  }
+  
+  .data-csv-upload .table-items {
+    list-style: none;
+    padding: 0;
+    margin-top: 10px;
+  }
+  
+  .data-csv-upload .table-item {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    cursor: pointer;
+    background-color: white;
+    transition: background-color 0.3s ease;
+  }
+  
+  .data-csv-upload .table-item.selected {
+    background-color: #cce5ff;
+    border-color: #80bdff;
+  }
+  
+  /* Schema Section */
+  .data-csv-upload .schema-section {
+    margin-top: 20px;
+  }
+  
+  .data-csv-upload .schema-section .scroll-box {
+    overflow-x: auto;
+    margin-top: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
+  .data-csv-upload .schema-section table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  
+  .data-csv-upload .schema-section th,
+  .data-csv-upload .schema-section td {
+    text-align: left;
+    padding: 10px;
+    border: 1px solid #ddd;
+  }
+  
+  .data-csv-upload .schema-section th {
+    background-color: #f2f2f2;
+  }
+  
+  .data-csv-upload .schema-section select {
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
+  /* Rules Section */
+  .data-csv-upload .rules-box {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .data-csv-upload .rule-checkbox {
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .data-csv-upload .rule-checkbox input {
+    margin-right: 5px;
+  }
+  
+  /* Buttons */
+  .data-csv-upload .button-37 {
+    background-color: #008cba;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .data-csv-upload .button-37:hover {
+    background-color: #007bb5;
+  }
+  
+  /* Button Group */
+  .data-csv-upload .button-group {
+    text-align: center;
+    margin-top: 20px;
+  }
+  
+  .data-csv-upload .button-group .nav-button {
+    padding: 12px 24px;
+    font-size: 18px;
+  }
+  
+  /* No Schema Message */
+  .data-csv-upload .schema-section td[colspan="4"] {
+    text-align: center;
+    font-size: 16px;
+    color: #888;
+  }
+  

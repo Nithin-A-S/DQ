@@ -1,5 +1,4 @@
 // src/context/UserContext.js
-
 import React, { createContext, useContext, useState } from "react";
 
 const UserContext = createContext();
@@ -8,7 +7,7 @@ export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
   const login = (userName) => {
-    setUser(userName);  // Example: store the logged-in user's name
+    setUser(userName); // Store the logged-in user's email
   };
 
   const logout = () => {
@@ -22,4 +21,4 @@ export const UserProvider = ({ children }) => {
   );
 };
 
-export const useUser = () => useContext(UserContext);  // Custom hook to access the context
+export const useUser = () => useContext(UserContext);

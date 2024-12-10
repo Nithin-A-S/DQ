@@ -62,11 +62,18 @@ const LoginRegister = ({ onLoginSuccess }) => {
         setSnackbarMessage("Password doesn't match.");
       } else {
         setSnackbarMessage("Login successful! Redirecting...");
+        fetch("http://127.0.0.1:5000/userID-fetch", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
+        })
         setTimeout(() => {
           // Call the onLoginSuccess callback from App.js
           onLoginSuccess(email);
           navigate("/home", { state: { email: email } });
-        }, 2000);
+        });
       }
     } else {
       if (userCredentials[email]) {
@@ -154,6 +161,7 @@ const LoginRegister = ({ onLoginSuccess }) => {
           <div className="snackbar">{snackbarMessage}</div>
         )}
       </div>
+
     </div>
   );
 };

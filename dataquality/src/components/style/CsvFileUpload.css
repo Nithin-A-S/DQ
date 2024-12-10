@@ -1,0 +1,90 @@
+.CsvFileUpload-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+  
+  .CsvFileUpload-tile {
+    margin: 10px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    width: 80%;
+  }
+  
+  .CsvFileUpload-upload, .CsvFileUpload-history {
+    text-align: center;
+  }
+  
+  .CsvFileUpload-stack {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  .CsvFileUpload-button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .CsvFileUpload-button:hover {
+    background-color: #0056b3;
+  }
+  
+  .CsvFileUpload-input {
+    padding: 5px;
+  }
+  
+  .CsvFileUpload-error {
+    color: red;
+    margin-top: 10px;
+  }
+  
+  .CsvFileUpload-selectedFile {
+    margin-top: 10px;
+  }
+  
+  .CsvFileUpload-chipContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  
+  .CsvFileUpload-chip {
+    display: flex;
+    align-items: center;
+    padding: 5px 10px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 15px;
+  }
+  
+  .CsvFileUpload-chipDelete {
+    margin-left: 10px;
+    background: none;
+    border: none;
+    color: red;
+    cursor: pointer;
+  }
+  
+  .CsvFileUpload-chipDelete:hover {
+    color: darkred;
+  }
+  
+  .CsvFileUpload-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .CsvFileUpload-footer {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  

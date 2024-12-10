@@ -14,11 +14,24 @@ const Navbar = ({ title, onLogout }) => {
     }
   }, []);
 
-  const handleLogout = () => {
-    onLogout(); // Call the logout handler from App.js
-    navigate('/'); // Redirect to login page
-  };
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('http://127.0.0.1:5000/userID-delete', {
+        method: 'DELETE',
+      });
 
+      if (response.ok) {
+        localStorage.removeItem('userName'); // Clear userName from local storage
+        setUserName(''); // Clear the userName state
+        onLogout(); // Call the logout handler from App.js
+        navigate('/'); // Redirect to the login page
+      } else {
+        console.error('Failed to log out');
+      }
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
+  };
   const handleNavigation = (path) => {
     navigate(path);
   };

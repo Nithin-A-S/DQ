@@ -1,8 +1,11 @@
 import React from 'react';
 import './style/Home.css';
 import { useNavigate } from 'react-router-dom';
-const Home = () => {
+import { useUser } from "../context/UserContext";
+const Home = ({username}) => {
     const navigate = useNavigate();
+    const {user}=useUser();
+    console.log(username);
     const Handlereport=()=>{
       navigate('/report');}
   return (
