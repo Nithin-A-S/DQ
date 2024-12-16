@@ -11,7 +11,7 @@ const AzureConfig = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://127.0.0.1:5000/connect-azure', {
+      const response = await fetch('http://127.0.0.1:5000/connect', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

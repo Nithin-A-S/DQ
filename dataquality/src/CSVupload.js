@@ -200,7 +200,7 @@ const CSVUpload = () => {
                         <select
                           value={columnDataType[col.column] || ''}
                           onChange={(e) => handleDataTypeChange(col.column, e.target.value)}
-                        >
+                        >       
                           <option value="string">String</option>
                           <option value="integer">Integer</option>
                           <option value="float">Float</option>

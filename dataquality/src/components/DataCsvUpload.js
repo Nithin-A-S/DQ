@@ -32,7 +32,7 @@ const DataCsvUpload = () => {
   const location = useLocation();
   const state = location.state || {};
   const csvfiles = state.csvfiles;
-  const currUser = state.username;
+  const [currUser,setCurrUser]= useState('');
   console.log(csvfiles,currUser,selectedTable);
  
  localStorage.clear();
@@ -45,6 +45,13 @@ const DataCsvUpload = () => {
     }
   }, [csvfiles]);
  
+ useEffect(() =>{
+  fetch("http://127.0.0.1:5000/get-user-id")
+    .then((response)=>response.json())
+    .then((data) => {
+      setCurrUser(data.user_id)
+    })
+  },[]);
  
   useEffect(() => {
     if (selectedTable) {
@@ -218,7 +225,7 @@ const DataCsvUpload = () => {
         </ul>
       )}
     </div>
-
+ 
     <div className="data-csv-upload schema-section">
       <div className="data-csv-upload scroll-box">
         <table>
@@ -301,13 +308,13 @@ const DataCsvUpload = () => {
       </div>
     </div>
   </div>
-
+ 
   <div className="data-csv-upload button-group">
     <button className="data-csv-upload nav-button" onClick={handleNextClick}>
       Next
     </button>
   </div>
-
+ 
   <CustomExp
     trigger={popupOpen}
     setTrigger={setPopupOpen}
@@ -315,7 +322,7 @@ const DataCsvUpload = () => {
     column={selectedColumnForPopup}
     columnType={selectedColumnType}
   />
-
+ 
   {summaryOpen && selectedColumnForSummary && (
     <SummaryPopup
       trigger={summaryOpen}
@@ -326,9 +333,10 @@ const DataCsvUpload = () => {
     />
   )}
 </div>
-
+ 
   );
 };
  
-export default DataCsvUpload; 
+export default DataCsvUpload;
+ 
  

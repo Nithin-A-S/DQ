@@ -143,7 +143,9 @@ def validate_columns():
 
 @app.route('/summaryapi', methods=['GET'])
 def get_summary():
+    print("---THIS IS SUMS",sums)
     return jsonify({"status": "success", "data": sums})
+
 
 
 @app.route('/run-validations', methods=['POST'])
@@ -153,48 +155,99 @@ def run_validations():
 
     if df is None or df.count() == 0:
         return jsonify({"message": "No file uploaded or the file is empty"}), 400
+    print("abcdefgh",df)
+    print("++++++++",sums)
 
     validation_results = apply_validations_and_expectations(df, sums)
     return jsonify({"validation_results": validation_results})
 
-@app.route('/check-connection', methods=['GET'])
+@app.route('/check-conn', methods=['GET'])
 def check_connection():
-    """
-    Check if the connection string exists in the MongoDB database.
-    """
+    print("-->",user_session)
     global azure_conn_string
-    user = users_collection.find_one()
+    if not user_session:
+        return jsonify({"success": False, "message": "User session is not available"}), 400
     
-    if user and "connection_string" in user:
-        azure_conn_string = user["connection_string"]
-        try:
-            blob_service_client = BlobServiceClient.from_connection_string(azure_conn_string)
-            containers = blob_service_client.list_containers()
-            container_names = [container["name"] for container in containers]
-            return jsonify({"success": True, "connectionString": azure_conn_string, "containers": container_names})
-        except Exception as e:
-            return jsonify({"success": False, "message": str(e)}), 500
-    return jsonify({"success": False, "connectionString": None}), 200
+    user = users_collection.find_one({"email": user_session["user_id"]})
+    
+    if not user:
+        return jsonify({"success": False, "message": "User not found"}), 404
+    
+    if "connection_string" not in user or not user["connection_string"]:
+        return jsonify({"success": False, "message": "Connection string is not available for the user."}), 400
+    
+    azure_conn_string = user["connection_string"]
+    try:
+        blob_service_client = BlobServiceClient.from_connection_string(azure_conn_string)
+        containers = blob_service_client.list_containers()
+        container_names = [container["name"] for container in containers]
+        return jsonify({
+            "success": True, 
+            "connectionString": azure_conn_string, 
+            "containers": container_names
+        })
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Error connecting to Azure: {str(e)}"}), 500
 
-@app.route('/connect-azure', methods=['POST'])
+# @app.route('/connect', methods=['POST'])
+# def connect_azure():
+#     print(user_session)
+
+#     global azure_conn_string
+#     data = request.json
+#     azure_conn_string = data.get('connection_string')
+#     print(azure_conn_string,type(azure_conn_string))
+#     if not azure_conn_string:
+#         return jsonify({'success': False, 'message': 'Connection string is missing'}), 400
+
+#     try:
+#         # Save the connection string to MongoDB for the current user
+#         user = users_collection.find_one({'email':user_session["user_id"]}) 
+#         print("++++",user)
+#         # Replace this with a condition to identify the current user (e.g., user_id)
+#         if user:
+#             users_collection.update_one(
+#                 {'email':user_session["user_id"]},  # Ensure you're updating the correct user
+#                 {'$push': {'connection_string': azure_conn_string}}
+@app.route('/connect', methods=['POST'])
 def connect_azure():
     global azure_conn_string
+    
+    # Assume `user_session` contains the logged-in user's email as `user_id`
+    user_email = user_session.get("user_id")
+    if not user_email:
+        return jsonify({'success': False, 'message': 'User session is invalid'}), 401
+
+    # Parse the JSON request to get the connection string
     data = request.json
     azure_conn_string = data.get('connection_string')
-    print("11223")
-    print(azure_conn_string)
-
+    
     if not azure_conn_string:
         return jsonify({'success': False, 'message': 'Connection string is missing'}), 400
 
     try:
+        # Check if the user exists in MongoDB
+        user = users_collection.find_one({'email': user_email})
+
+        if user:
+            # Update the connection_string field for the user
+            users_collection.update_one(
+                {'email': user_email},
+                {'$set': {'connection_string': azure_conn_string}}  # Use `$set` to overwrite the field
+            )
+            return jsonify({'success': True, 'message': 'Connection string updated successfully'}), 200
+
+        # Try to connect to Azure with the provided connection string
         blob_service_client = BlobServiceClient.from_connection_string(azure_conn_string)
         containers = blob_service_client.list_containers()
         container_names = [container['name'] for container in containers]
-        return jsonify({'success': True, 'containers': container_names})
+
+        return jsonify({
+            'success': True,
+            'containers': container_names
+        })
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
-
 
 @app.route('/logout', methods=['POST'])
 def logout():
@@ -202,7 +255,7 @@ def logout():
     azure_conn_string = None
     current_table = None
     sums = {}
-    df = pd.DataFrame()
+    df = None
     datasets_list = []
     return jsonify({'success': True})
 
@@ -306,6 +359,7 @@ def get_user_data():
 
 @app.route('/data-dataset-upload', methods=['POST'])
 def upload_file():
+    global df
     if 'file' not in request.files:
         return jsonify({"error": "No file part"}), 400
  
@@ -427,15 +481,16 @@ def data_send_schema():
     print("All data retrieved from MongoDB:", all_data, type(all_data), sep='\n')
    
     # Create a pandas DataFrame if data is available
-    pandas_df = pd.DataFrame(all_data)
-    print(pandas_df.info())
-    df = spark.createDataFrame(pandas_df)
-    print(df.printSchema())
+    global df
+    df = spark.createDataFrame(all_data)
+    print("hiiiiiiiiiiiiiiiii",df.printSchema())
+    print("headddddd",df.head())
     if df is None:
         return jsonify({"message": "No file uploaded yet"}), 400
  
     schema = [{"column": col, "type": str(df.schema[col].dataType)} for col in df.columns]
-    print(schema)
+    print("seufefefhefuefue",schema)
+    print(df)
     return jsonify({"schema": schema, "table": current_table})
  
  

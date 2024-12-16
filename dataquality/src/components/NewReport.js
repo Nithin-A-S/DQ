@@ -10,7 +10,7 @@ const NewReport = () => {
   console.log(userName)
   // Check Azure connection status when the component mounts
   useEffect(() => {
-    fetch("http://127.0.0.1:5000/check-connection")
+    fetch("http://127.0.0.1:5000/check-conn")
       .then((response) => response.json())
       .then((data) => {
         if (data.success && data.connectionString) {

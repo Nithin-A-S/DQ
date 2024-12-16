@@ -1,87 +1,61 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const LinkedSystem = ({ username }) => {
-  const [isConnected, setIsConnected] = useState(false);
-  const [connectionString, setConnectionString] = useState("");
-  const [containerNames, setContainerNames] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+const LinkedSystems = () => {
+  const [connected, setConnected] = useState(null); // null means not checked yet
+  const [errorMessage, setErrorMessage] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if the connection string exists for the current user
-    fetch(`http://127.0.0.1:5000/check-connection?username=${username}`)
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success && data.connectionString) {
-          setIsConnected(true);
-          setContainerNames(data.containers || []);
-        }
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error checking connection:", err);
-        setLoading(false);
-      });
-  }, [username]);
+    // Check connection status on component mount
+    const checkConnection = async () => {
+      try {
+        const response = await fetch('http://127.0.0.1:5000/check-conn', {
+          method: 'GET',
+        });
+        const data = await response.json();
 
-  const handleConnection = () => {
-    setLoading(true);
-    fetch("http://127.0.0.1:5000/connect-azure", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, connection_string: connectionString }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          setIsConnected(true);
-          setContainerNames(data.containers);
-          setError("");
+        if (response.ok) {
+          // If the connection string exists and the connection is successful
+          if (data.success) {
+            setConnected(true);
+          } else {
+            setConnected(false);
+            setErrorMessage(data.message); // Error message from backend (e.g., connection string missing)
+          }
         } else {
-          setError(data.message || "Failed to connect.");
+          // Handle server errors or unsuccessful responses
+          setConnected(false);
+          setErrorMessage(data.message || 'Something went wrong.');
         }
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error connecting to Azure:", err);
-        setError("Error connecting to Azure.");
-        setLoading(false);
-      });
-  };
+      } catch (error) {
+        console.error('Error checking connection:', error);
+        setConnected(false);
+        setErrorMessage('Failed to connect. Please try again later.');
+      }
+    };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+    checkConnection();
+  }, [navigate]);
 
   return (
     <div>
-      <h1>Linked System</h1>
-      {isConnected ? (
+      {connected === null ? (
+        <p>Checking connection...</p> // Initial state, still checking
+      ) : connected ? (
         <div>
-          <h2>ADLS Connected</h2>
-          <p>Connected to Azure Data Lake Storage.</p>
-          <h3>Containers:</h3>
-          <ul>
-            {containerNames.map((container, index) => (
-              <li key={index}>{container}</li>
-            ))}
-          </ul>
+          <h2>Connection Successful</h2>
+          <p>You are successfully connected to Azure. Proceed with your operations.</p>
         </div>
       ) : (
         <div>
-          <h2>Connect to Azure ADLS</h2>
-          <input
-            type="text"
-            placeholder="Enter Connection String"
-            value={connectionString}
-            onChange={(e) => setConnectionString(e.target.value)}
-          />
-          <button onClick={handleConnection}>Connect</button>
-          {error && <p style={{ color: "red" }}>{error}</p>}
+          <h2>Connection Failed</h2>
+          <p>{errorMessage}</p>
+          <p>Redirecting to Azure configuration...</p>
         </div>
       )}
     </div>
   );
 };
 
-export default LinkedSystem;
+export default LinkedSystems;
