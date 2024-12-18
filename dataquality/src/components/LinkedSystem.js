@@ -14,14 +14,15 @@ const LinkedSystems = () => {
           method: 'GET',
         });
         const data = await response.json();
-
+  
         if (response.ok) {
           // If the connection string exists and the connection is successful
           if (data.success) {
             setConnected(true);
           } else {
             setConnected(false);
-            setErrorMessage(data.message); // Error message from backend (e.g., connection string missing)
+            setErrorMessage(data.message);
+            navigate('/azure'); // Error message from backend (e.g., connection string missing)
           }
         } else {
           // Handle server errors or unsuccessful responses

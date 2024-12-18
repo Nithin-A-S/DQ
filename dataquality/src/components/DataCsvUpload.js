@@ -43,7 +43,7 @@ const DataCsvUpload = () => {
     } else {
       console.error("No tables received from the previous page.");
     }
-  }, [csvfiles]);
+  }, []);
  
  useEffect(() =>{
   fetch("http://127.0.0.1:5000/get-user-id")
@@ -52,6 +52,42 @@ const DataCsvUpload = () => {
       setCurrUser(data.user_id)
     })
   },[]);
+  
+  useEffect(() => {
+    const savedValidations =
+      JSON.parse(localStorage.getItem("selectedValidations")) || {};
+    const savedExpectations =
+      JSON.parse(localStorage.getItem("columnExpectations")) || {};
+    const savedSelectedTable = localStorage.getItem("selectedTable");
+ 
+    setSelectedValidations(savedValidations);
+    setColumnExpectations(savedExpectations);
+    setSelectedTable(savedSelectedTable || "");
+ 
+    console.log("Loaded from localStorage:", {
+      savedValidations,
+      savedExpectations,
+      savedSelectedTable,
+    });
+  }, []);
+ 
+  useEffect(() => {
+    localStorage.setItem(
+      "selectedValidations",
+      JSON.stringify(selectedValidations)
+    );
+  }, [selectedValidations]);
+ 
+  useEffect(() => {
+    localStorage.setItem(
+      "columnExpectations",
+      JSON.stringify(columnExpectations)
+    );
+  }, [columnExpectations]);
+ 
+  useEffect(() => {
+    localStorage.setItem("selectedTable", selectedTable);
+  }, [selectedTable]);
  
   useEffect(() => {
     if (selectedTable) {
@@ -88,42 +124,6 @@ const DataCsvUpload = () => {
     }
   }, [selectedTable]);
  
- 
-  useEffect(() => {
-    const savedValidations =
-      JSON.parse(localStorage.getItem("selectedValidations")) || {};
-    const savedExpectations =
-      JSON.parse(localStorage.getItem("columnExpectations")) || {};
-    const savedSelectedTable = localStorage.getItem("selectedTable");
- 
-    setSelectedValidations(savedValidations);
-    setColumnExpectations(savedExpectations);
-    setSelectedTable(savedSelectedTable || "");
- 
-    console.log("Loaded from localStorage:", {
-      savedValidations,
-      savedExpectations,
-      savedSelectedTable,
-    });
-  }, []);
- 
-  useEffect(() => {
-    localStorage.setItem(
-      "selectedValidations",
-      JSON.stringify(selectedValidations)
-    );
-  }, [selectedValidations]);
- 
-  useEffect(() => {
-    localStorage.setItem(
-      "columnExpectations",
-      JSON.stringify(columnExpectations)
-    );
-  }, [columnExpectations]);
- 
-  useEffect(() => {
-    localStorage.setItem("selectedTable", selectedTable);
-  }, [selectedTable]);
  
   const handleValidationChange = (column, validation) => {
     setSelectedValidations((prevState) => {

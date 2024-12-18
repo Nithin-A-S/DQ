@@ -138,6 +138,7 @@ def validate_columns():
     transformed_data = transform_rules(data)
     global sums
     sums = transformed_data
+    print(sums)
     return jsonify({"status": "success", "message": "Validations received", "data": data})
 
 
@@ -150,15 +151,16 @@ def get_summary():
 
 @app.route('/run-validations', methods=['POST'])
 def run_validations():
+    data = request.json
+    print("THIS IS THE CURRENT CHECK",data,sums,sep='\n')
     if current_table is None:
         return jsonify({"message": "No table selected"}), 400
-
     if df is None or df.count() == 0:
         return jsonify({"message": "No file uploaded or the file is empty"}), 400
-    print("abcdefgh",df)
-    print("++++++++",sums)
+    # print("abcdefgh",df)
+    # print("++++++++",sums)
 
-    validation_results = apply_validations_and_expectations(df, sums)
+    validation_results = apply_validations_and_expectations(df,sums)
     return jsonify({"validation_results": validation_results})
 
 @app.route('/check-conn', methods=['GET'])
@@ -483,14 +485,14 @@ def data_send_schema():
     # Create a pandas DataFrame if data is available
     global df
     df = spark.createDataFrame(all_data)
-    print("hiiiiiiiiiiiiiiiii",df.printSchema())
+    # print("hiiiiiiiiiiiiiiiii",df.printSchema())
     print("headddddd",df.head())
     if df is None:
         return jsonify({"message": "No file uploaded yet"}), 400
  
     schema = [{"column": col, "type": str(df.schema[col].dataType)} for col in df.columns]
     print("seufefefhefuefue",schema)
-    print(df)
+    print(df, type(df))
     return jsonify({"schema": schema, "table": current_table})
  
  
