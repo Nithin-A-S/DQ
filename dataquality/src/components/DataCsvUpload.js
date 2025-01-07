@@ -33,9 +33,9 @@ const DataCsvUpload = () => {
   const state = location.state || {};
   const csvfiles = state.csvfiles;
   const [currUser,setCurrUser]= useState('');
-  console.log(csvfiles,currUser,selectedTable);
+  console.log("RECEIVED CREDS",csvfiles,currUser,selectedTable);
  
- localStorage.clear();
+//  localStorage.clear();
  
   useEffect(() => {
     if (csvfiles) {
@@ -43,7 +43,7 @@ const DataCsvUpload = () => {
     } else {
       console.error("No tables received from the previous page.");
     }
-  }, []);
+  }, [csvfiles]);
  
  useEffect(() =>{
   fetch("http://127.0.0.1:5000/get-user-id")
@@ -54,6 +54,7 @@ const DataCsvUpload = () => {
   },[]);
   
   useEffect(() => {
+    localStorage.clear();
     const savedValidations =
       JSON.parse(localStorage.getItem("selectedValidations")) || {};
     const savedExpectations =
@@ -88,7 +89,9 @@ const DataCsvUpload = () => {
   useEffect(() => {
     localStorage.setItem("selectedTable", selectedTable);
   }, [selectedTable]);
- 
+  
+  console.log("DATA_SEND_SCHEMA",currUser,csvfiles);
+
   useEffect(() => {
     if (selectedTable) {
       fetch("http://127.0.0.1:5000/data-send-schema", {
@@ -146,8 +149,8 @@ const DataCsvUpload = () => {
         customRules: {
           // Rename expectations to customRules
           column: col.column,
-          expectations: columnExpectations[col.column] || {},
-        },
+          expectations: columnExpectations[col.column] || {}
+        }
       }))
       .filter(
         (col) =>
@@ -155,7 +158,7 @@ const DataCsvUpload = () => {
           Object.keys(col.customRules.expectations).length > 0
       );
  
-    console.log("Global Rules and Custom Rules Data:", validationData);
+    console.log("Validations check:", validationData);
  
     navigate("/explist", { state: { summaryData: validationData } });
  
@@ -245,7 +248,7 @@ const DataCsvUpload = () => {
                   <td>{col.column}</td>
                   <td>
                     <select
-                      value={columnDataType[col.column] || ""}
+                      value={columnDataType[col.column] || ''}
                       onChange={(e) =>
                         handleDataTypeChange(col.column, e.target.value)
                       }

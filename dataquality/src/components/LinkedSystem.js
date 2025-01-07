@@ -5,7 +5,7 @@ const LinkedSystems = () => {
   const [connected, setConnected] = useState(null); // null means not checked yet
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
-  const a = '';
+  
   useEffect(() => {
     // Check connection status on component mount
     const checkConnection = async () => {

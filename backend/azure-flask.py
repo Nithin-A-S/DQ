@@ -30,17 +30,17 @@ current_table = None
 datasets_list = []
 sums = {}
 df = pd.DataFrame()
-
+user_session = {"user_id": None}
 
 @app.route('/register-user', methods=['POST'])
 def register_user():
     try:
         req_body = request.json
-        print(type(req_body),req_body)
+        # print(type(req_body),req_body)
         req_body['connection_string'] = ''
         req_body['access_key']=''
         users_collection.insert_one(req_body)            
-        print("User Data Stored Successfully in the Database.")
+        # print("User Data Stored Successfully in the Database.")
         return jsonify({"message": "User's Credentials Registered"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -73,7 +73,7 @@ def get_tables():
         datasets_list = [blob.name for blob in blobs]
 
         # Log and Return Data
-        print("Blobs Found:", datasets_list)
+        # print("Blobs Found:", datasets_list)
         return jsonify({"table": datasets_list}), 200
     except Exception as e:
         print("Error:", str(e))
@@ -138,7 +138,7 @@ def validate_columns():
     transformed_data = transform_rules(data)
     global sums
     sums = transformed_data
-    print(sums)
+    print("validate_columns-output",sums)
     return jsonify({"status": "success", "message": "Validations received", "data": data})
 
 
@@ -152,13 +152,15 @@ def get_summary():
 @app.route('/run-validations', methods=['POST'])
 def run_validations():
     data = request.json
-    print("THIS IS THE CURRENT CHECK",data,sums,sep='\n')
+    print("run-validations output",data,sums,sep='\n')
     if current_table is None:
         return jsonify({"message": "No table selected"}), 400
+    
     if df is None or df.count() == 0:
         return jsonify({"message": "No file uploaded or the file is empty"}), 400
     # print("abcdefgh",df)
     # print("++++++++",sums)
+    # print("GITTT")
 
     validation_results = apply_validations_and_expectations(df,sums)
     return jsonify({"validation_results": validation_results})
@@ -305,7 +307,6 @@ validation_map = {
     'isnull': lambda df, col: df.expect_column_values_to_be_null(col),
     'isblank': lambda df, col: df.expect_column_values_to_match_regex(col, r'^\s*$'),
     'isboolean': lambda df, col: df.expect_column_values_to_be_of_type(col, 'BooleanType'),
-
     'isnegativenumber': lambda df, col: df.expect_column_values_to_be_less_than(col, 0),
     'ispositivenumber': lambda df, col: df.expect_column_values_to_be_greater_than(col, 0),
     'isnumber': lambda df, col: df.expect_column_values_to_be_of_type(col, 'IntegerType'),
@@ -480,23 +481,23 @@ def data_send_schema():
     all_data = document['data'][csvfile_index]
  
     # Print the extracted data for debugging
-    print("All data retrieved from MongoDB:", all_data, type(all_data), sep='\n')
+    # print("All data retrieved from MongoDB:", all_data, type(all_data), sep='\n')
    
     # Create a pandas DataFrame if data is available
     global df
     df = spark.createDataFrame(all_data)
     # print("hiiiiiiiiiiiiiiiii",df.printSchema())
-    print("headddddd",df.head())
+    # print("headddddd",df.head())
     if df is None:
         return jsonify({"message": "No file uploaded yet"}), 400
  
     schema = [{"column": col, "type": str(df.schema[col].dataType)} for col in df.columns]
-    print("seufefefhefuefue",schema)
-    print(df, type(df))
+    # print("seufefefhefuefue",schema)
+    # print(df, type(df))
     return jsonify({"schema": schema, "table": current_table})
  
  
-user_session = {"user_id": None}  # Global variable to store user session
+# Global variable to store user session
 
 @app.route('/userID-fetch', methods=['POST'])
 def set_user_id():

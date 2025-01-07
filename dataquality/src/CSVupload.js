@@ -25,6 +25,7 @@ const CSVUpload = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    localStorage.clear();
     const savedValidations = JSON.parse(localStorage.getItem('selectedValidations')) || {};
     const savedExpectations = JSON.parse(localStorage.getItem('columnExpectations')) || {};
     const savedSelectedTable = localStorage.getItem('selectedTable');
@@ -112,7 +113,7 @@ const CSVUpload = () => {
       }))
       .filter(col => col.globalRules.length > 0 || Object.keys(col.customRules.expectations).length > 0);
 
-    console.log('Global Rules and Custom Rules Data:', validationData);
+    console.log('Validations check', validationData);
 
     navigate('/explist', { state: { summaryData: validationData } });
 
@@ -198,7 +199,7 @@ const CSVUpload = () => {
                       <td>{col.column}</td>
                       <td>
                         <select
-                          value={columnDataType[col.column] || ''}
+                          value={columnDataType[col.column] || ""}
                           onChange={(e) => handleDataTypeChange(col.column, e.target.value)}
                         >       
                           <option value="string">String</option>
