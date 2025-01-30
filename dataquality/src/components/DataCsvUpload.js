@@ -43,7 +43,7 @@ const DataCsvUpload = () => {
     } else {
       console.error("No tables received from the previous page.");
     }
-  }, [csvfiles]);
+  }, []);
  
  useEffect(() =>{
   fetch("http://127.0.0.1:5000/get-user-id")
@@ -52,42 +52,6 @@ const DataCsvUpload = () => {
       setCurrUser(data.user_id)
     })
   },[]);
- 
-  useEffect(() => {
-    if (selectedTable) {
-      fetch("http://127.0.0.1:5000/data-send-schema", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: currUser , csvfiles: selectedTable }),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          setSchema(data.schema);
- 
-          const updatedValidations = {};
-          const updatedExpectations = {};
-          const updatedColumnTypes = {};
-          data.schema.forEach((col) => {
-            updatedValidations[col.column] =
-              selectedValidations[col.column] || [];
-            updatedExpectations[col.column] =
-              columnExpectations[col.column] || [];
-            updatedColumnTypes[col.column] = col.type; // Store the data type
-          });
- 
-          setSelectedValidations(updatedValidations);
-          setColumnExpectations(updatedExpectations);
-          setColumnDataType(updatedColumnTypes); // Set column data types
- 
-          console.log(
-            "Updated Validations and Expectations after schema fetch:",
-            { updatedValidations, updatedExpectations }
-          );
-        })
-        .catch((error) => console.error("Error fetching schema:", error));
-    }
-  }, [selectedTable]);
- 
  
   useEffect(() => {
     const savedValidations =
@@ -124,6 +88,42 @@ const DataCsvUpload = () => {
   useEffect(() => {
     localStorage.setItem("selectedTable", selectedTable);
   }, [selectedTable]);
+ 
+  useEffect(() => {
+    if (selectedTable) {
+      fetch("http://127.0.0.1:5000/data-send-schema", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: currUser , csvfiles: selectedTable }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          setSchema(data.schema);
+ 
+          const updatedValidations = {};
+          const updatedExpectations = {};
+          const updatedColumnTypes = {};
+          data.schema.forEach((col) => {
+            updatedValidations[col.column] =
+              selectedValidations[col.column] || [];
+            updatedExpectations[col.column] =
+              columnExpectations[col.column] || [];
+            updatedColumnTypes[col.column] = col.type; // Store the data type
+          });
+ 
+          setSelectedValidations(updatedValidations);
+          setColumnExpectations(updatedExpectations);
+          setColumnDataType(updatedColumnTypes); // Set column data types
+ 
+          console.log(
+            "Updated Validations and Expectations after schema fetch:",
+            { updatedValidations, updatedExpectations }
+          );
+        })
+        .catch((error) => console.error("Error fetching schema:", error));
+    }
+  }, [selectedTable]);
+ 
  
   const handleValidationChange = (column, validation) => {
     setSelectedValidations((prevState) => {
@@ -338,5 +338,6 @@ const DataCsvUpload = () => {
 };
  
 export default DataCsvUpload;
+ 
  
  

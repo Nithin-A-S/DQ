@@ -1,3 +1,4 @@
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from pyspark.sql import SparkSession
@@ -7,7 +8,7 @@ from azure.storage.blob import BlobServiceClient
 from pymongo import MongoClient
 import tempfile
 import pandas as pd
-
+from datetime import datetime
 # Constants
 MONGO_CONN_STRING = "mongodb+srv://datamaccount:dataacc1234@clustermaccel.n4dwyfo.mongodb.net/?retryWrites=true&w=majority&appName=clustermaccel"
 AZURE_CONTAINER_NAME = "datasets"
@@ -17,9 +18,9 @@ client = MongoClient(MONGO_CONN_STRING)
 database = client["csvfolder"]
 tasks_collection = database["DQ-datasets"]
 users_collection = database.get_collection("DQ-users")
+report_collections=database["DQ-reports"]
 
 
-# Initialize Flask app and Spark session
 app = Flask(__name__)
 CORS(app)
 spark = SparkSession.builder.appName("DataQualityApp").getOrCreate()
@@ -30,13 +31,13 @@ current_table = None
 datasets_list = []
 sums = {}
 df = pd.DataFrame()
-
+flag=""
 
 @app.route('/register-user', methods=['POST'])
 def register_user():
     try:
         req_body = request.json
-        print(type(req_body),req_body)
+       
         req_body['connection_string'] = ''
         req_body['access_key']=''
         users_collection.insert_one(req_body)            
@@ -52,7 +53,7 @@ def read_users():
         users = users_collection.find({})
         output = [{'email' : user['email'], 'pass' : user['password']} for user in users]   #list comprehension
         resp['data'] = output
-        print(resp)
+        
         return jsonify(resp), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -67,8 +68,6 @@ def get_tables():
         # Create Blob Service Client
         blob_service_client = BlobServiceClient.from_connection_string(azure_conn_string)
         container_client = blob_service_client.get_container_client(AZURE_CONTAINER_NAME)
-
-        # List Blobs in Container
         blobs = container_client.list_blobs()
         datasets_list = [blob.name for blob in blobs]
 
@@ -147,19 +146,111 @@ def get_summary():
     return jsonify({"status": "success", "data": sums})
 
 
-
 @app.route('/run-validations', methods=['POST'])
 def run_validations():
+    data = request.json
     if current_table is None:
         return jsonify({"message": "No table selected"}), 400
 
     if df is None or df.count() == 0:
         return jsonify({"message": "No file uploaded or the file is empty"}), 400
-    print("abcdefgh",df)
-    print("++++++++",sums)
+
+    if user_session["user_id"] is None:
+        return jsonify({"message": "User not logged in"}), 403
+
+    # Capture the current date and time
+    curr_date = datetime.now()
 
     validation_results = apply_validations_and_expectations(df, sums)
-    return jsonify({"validation_results": validation_results})
+
+    report_collection = database["DQ-reports"]
+    username = user_session["user_id"]
+    user_record = report_collection.find_one({"username": username})
+
+    if user_record is None:
+        user_record = {
+            "username": username,
+            "results": {}
+        }
+        report_collection.insert_one(user_record)
+
+    result_id = str(len(user_record["results"]) + 1)
+    average_score = calculate_score(validation_results)
+    # Add current_table, validation results, and curr_date
+    user_record["results"][result_id] = {
+        "validation_results": validation_results,
+        "current_table": current_table,
+        "execution_date": curr_date.strftime("%Y-%m-%d %H:%M:%S") ,
+        "score":average_score # Format date and time
+    }
+
+    report_collection.update_one(
+        {"username": username},
+        {"$set": {"results": user_record["results"]}}
+    )
+    
+    print(average_score)
+
+    return jsonify({"message": "Validation results stored successfully", "validation_results": validation_results})
+
+def calculate_score(validation_data):
+    try:
+        # Ensure validation_data is a list
+        if not isinstance(validation_data, list):
+            print(f"Unexpected data type for validation_data: {type(validation_data)}")
+            return 0.0
+
+        # Extract unexpected_percent values from the list
+        unexpected_percentages = [
+            result.get("result", {}).get("unexpected_percent", 0)
+            for result in validation_data
+            if isinstance(result, dict) and "result" in result
+        ]
+
+        if not unexpected_percentages:
+            return 0.0  # No valid percentages, return 0
+
+        # Calculate the average
+        average = sum(unexpected_percentages) / len(unexpected_percentages)
+        return average
+
+    except Exception as e:
+        print(f"Error calculating score: {e}")
+        return 0.0
+# @app.route('/run-validations', methods=['POST'])
+# def run_validations():
+#     if current_table is None:
+#         return jsonify({"message": "No table selected"}), 400
+
+#     if df is None or df.count() == 0:
+#         return jsonify({"message": "No file uploaded or the file is empty"}), 400
+#     print("abcdefgh",df)
+#     print("++++++++",sums)
+
+#     validation_results = apply_validations_and_expectations(df, sums)
+#     return jsonify({"validation_results": validation_results})
+
+@app.route('/get-reports', methods=['GET'])
+def get_reports():
+    try:
+        # Validate the session
+        if user_session["user_id"] is None:
+            return jsonify({"message": "User not logged in"}), 403
+
+        username = user_session["user_id"]
+        report_collection = database["DQ-reports"]
+
+        # Fetch user records
+        user_record = report_collection.find_one({"username": username}, {"_id": 0, "results": 1})
+        if not user_record or "results" not in user_record:
+            return jsonify({"message": "No reports found for this user"}), 404
+
+        return jsonify({"reports": user_record["results"]})
+
+    except Exception as e:
+        print("Error:", str(e))
+        return jsonify({"message": "An error occurred", "error": str(e)}), 500
+
 
 @app.route('/check-conn', methods=['GET'])
 def check_connection():
@@ -452,16 +543,57 @@ def removedata():
     except Exception as e:
         return jsonify({"error": "An error occurred.", "details": str(e)}), 500
     
+# @app.route('/data-send-schema', methods=['POST'])
+# def data_send_schema():
+#     data = request.json
+#     current_user = data.get('username')  # username
+#     current_table = data.get('csvfiles')  # csvfile name
+#     print(current_user,current_table)
+   
+#     if not current_table or not current_user:
+#         return jsonify({"message": "Username and table (csvfile) are required"}), 400
+   
+#     document = tasks_collection.find_one(
+#         {"username": current_user},
+#         {"csvfiles": 1, "data": 1, "_id": 0}  # Only include necessary fields
+#     )
+   
+#     if not document:
+#         return jsonify({"message": f"User '{current_user}' not found"}), 404
+   
+#     try:
+#         csvfile_index = document['csvfiles'].index(current_table)
+#     except ValueError:
+#         return jsonify({"message": f"CSV file '{current_table}' not found for user '{current_user}'"}), 404
+   
+#     all_data = document['data'][csvfile_index]
+ 
+#     # Print the extracted data for debugging
+#     print("All data retrieved from MongoDB:", all_data, type(all_data), sep='\n')
+   
+#     # Create a pandas DataFrame if data is available
+#     global df
+#     df = spark.createDataFrame(all_data)
+#     print("hiiiiiiiiiiiiiiiii",df.printSchema())
+#     # print("headddddd",df.head())
+#     if df is None:
+#         return jsonify({"message": "No file uploaded yet"}), 400
+ 
+#     schema = [{"column": col, "type": str(df.schema[col].dataType)} for col in df.columns]
+#     print("seufefefhefuefue",schema)
+#     print(df)
+#     return jsonify({"schema": schema, "table": current_table})
 @app.route('/data-send-schema', methods=['POST'])
 def data_send_schema():
     data = request.json
     current_user = data.get('username')  # username
     current_table = data.get('csvfiles')  # csvfile name
-    print(current_user,current_table)
-   
+    print("Username and table received:", current_user, current_table)
+    flag="upload"
     if not current_table or not current_user:
         return jsonify({"message": "Username and table (csvfile) are required"}), 400
    
+    # Fetch the user's document from MongoDB
     document = tasks_collection.find_one(
         {"username": current_user},
         {"csvfiles": 1, "data": 1, "_id": 0}  # Only include necessary fields
@@ -471,27 +603,42 @@ def data_send_schema():
         return jsonify({"message": f"User '{current_user}' not found"}), 404
    
     try:
+        # Find the index of the current table in the 'csvfiles' list
         csvfile_index = document['csvfiles'].index(current_table)
     except ValueError:
         return jsonify({"message": f"CSV file '{current_table}' not found for user '{current_user}'"}), 404
    
+    # Extract data for the given table
     all_data = document['data'][csvfile_index]
- 
+
     # Print the extracted data for debugging
     print("All data retrieved from MongoDB:", all_data, type(all_data), sep='\n')
-   
-    # Create a pandas DataFrame if data is available
-    global df
-    df = spark.createDataFrame(all_data)
-    print("hiiiiiiiiiiiiiiiii",df.printSchema())
-    print("headddddd",df.head())
-    if df is None:
-        return jsonify({"message": "No file uploaded yet"}), 400
- 
-    schema = [{"column": col, "type": str(df.schema[col].dataType)} for col in df.columns]
-    print("seufefefhefuefue",schema)
-    print(df)
-    return jsonify({"schema": schema, "table": current_table})
+    
+    if not all_data:
+        return jsonify({"message": "No data found for the selected table"}), 400
+
+    try:
+        # Convert the data (list of records) into a Spark DataFrame
+        global df
+        # Ensure all_data is in the correct format (list of dictionaries)
+        if isinstance(all_data, list) and all(isinstance(record, dict) for record in all_data):
+            df = spark.createDataFrame(all_data)
+        else:
+            return jsonify({"message": "Data format is invalid. Expected a list of records (dictionaries)"}), 400
+
+        # Print the DataFrame schema for debugging
+        print("DataFrame Schema:")
+        df.printSchema()
+
+        # Generate schema (column names and data types)
+        schema = [{"column": col, "type": str(df.schema[col].dataType)} for col in df.columns]
+        print("Schema generated:", schema)
+
+        return jsonify({"schema": schema, "table": current_table})
+    
+    except Exception as e:
+        print("Error:", str(e))
+        return jsonify({"message": f"Failed to process data. Error: {str(e)}"}), 500
  
  
 user_session = {"user_id": None}  # Global variable to store user session
@@ -519,6 +666,38 @@ def get_user_id():
         return jsonify({"error": "No user logged in"}), 400
     return jsonify({"user_id": user_id}), 200
 
+def calculate_score(validation_data):
+    """
+    Calculate the average of unexpected_percent from the validation results.
+
+    Args:
+        validation_data (dict): A dictionary containing validation results.
+
+    Returns:
+        float: The average of unexpected_percent values.
+    """
+    try:
+        validation_results = validation_data.get("validation_results", [])
+        if not validation_results:
+            return 0.0  # Return 0 if no validation results are found
+
+        # Extract unexpected_percent from each validation result
+        unexpected_percentages = [
+            result["result"].get("unexpected_percent", 0)
+            for result in validation_results
+            if "result" in result
+        ]
+        
+        if not unexpected_percentages:
+            return 0.0  # Return 0 if no unexpected percentages are found
+
+        # Calculate and return the average
+        average = sum(unexpected_percentages) / len(unexpected_percentages)
+        return average
+
+    except Exception as e:
+        print(f"Error calculating score: {e}")
+        return 0.0  # Return 0 in case of an error
 
 if __name__ == '__main__':
     app.run(debug=True)

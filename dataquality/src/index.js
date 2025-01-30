@@ -15,7 +15,8 @@ import { UserProvider } from './context/UserContext.js';
 import LinkedSystem from './components/LinkedSystem.js';
 import CsvFileUpload from './components/CsvFileUpload.js';
 import DataCsvUpload from './components/DataCsvUpload.js';
-
+import MyReport from './components/MyReport.js';
+import ShowReport from './components/ShowReport.js';
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState('');
@@ -63,8 +64,10 @@ const App = () => {
   <Route path="/fileupload" element={<CsvFileUpload userName={userName} />} />
   <Route path="/linkedsystem" element={<LinkedSystem userName={userName} />} />
                 <Route path="/datarulesupload" element={<DataCsvUpload />} />
+                <Route path="/show-report" element={<ShowReport />} />
                 <Route path="/report" element={<NewReport userName={userName}  />} />
                 <Route path="/azure" element={<AzureConfig />} />
+                <Route path="/myreport" element={<MyReport />} />
                 <Route path="/rules" element={<CSVUpload />} />
                 <Route path="/explist" element={<ExpList />} />
                 <Route path="/GlobalRules" element={<GlobalRules />} />

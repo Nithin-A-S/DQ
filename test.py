@@ -1,19 +1,57 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
-from pymongo import MongoClient
-import gridfs
-import pandas as pd
-from io import BytesIO
 
-app = Flask(__name__)
-CORS(app)
 
-# MongoDB Configuration
-con_string = "mongodb+srv://datamaccount:dataacc1234@clustermaccel.n4dwyfo.mongodb.net/?retryWrites=true&w=majority&appName=clustermaccel"
-client = MongoClient(con_string)
-database = client.get_database("csvfolder")
-tasks_collection = database.get_collection("DQ-datasets")
-users_collection = database.get_collection("DQ-users")
-username = "newuser1@gmail.com"
-user_data = tasks_collection.find_one({"username": username})
-print(user_data)
+def calculate_score(validation_data):
+    try:
+        validation_results = validation_data.get("validation_results", [])
+        if not validation_results:
+            return 0.0
+
+       
+        unexpected_percentages = [
+            result["result"].get("unexpected_percent", 0)
+            for result in validation_results
+            if "result" in result
+        ]
+        
+        if not unexpected_percentages:
+            return 0.0 
+
+        average = sum(unexpected_percentages) / len(unexpected_percentages)
+        return average
+    except Exception as e:
+        print(f"Error calculating score: {e}")
+        return 0.0  
+
+
+example_json = {
+    "validation_results": [
+        {
+            "result": {
+                "unexpected_percent": 100.0
+            }
+        },
+        {
+            "result": {
+                "unexpected_percent": 50.0
+            }
+        },
+        {
+            "result": {
+                "unexpected_percent": 0.0
+            }
+        }
+    ]
+}
+
+average_score = calculate_score(example_json)
+print(f" {average_score}%")
+
+def check_source(flag):
+    if not flag:  
+        source = 'Azure'
+    elif flag == 'upload': 
+        source = 'uploaded data'
+    else:
+        source = ''  \
+
+    return source

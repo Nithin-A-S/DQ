@@ -43,7 +43,7 @@ const Navbar = ({ title, onLogout }) => {
         <li onClick={() => handleNavigation('/report')}>
           <FaFileAlt /> New Report
         </li>
-        <li onClick={() => handleNavigation('/')}>
+        <li onClick={() => handleNavigation('/myreport')}>
           <FaUser /> My Reports
         </li>
         <li onClick={() => handleNavigation('/linkedsystem')}>
