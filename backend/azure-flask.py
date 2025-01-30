@@ -41,7 +41,7 @@ def register_user():
         req_body['connection_string'] = ''
         req_body['access_key']=''
         users_collection.insert_one(req_body)            
-        print("User Data Stored Successfully in the Database.")
+        # print("User Data Stored Successfully in the Database.")
         return jsonify({"message": "User's Credentials Registered"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -72,7 +72,7 @@ def get_tables():
         datasets_list = [blob.name for blob in blobs]
 
         # Log and Return Data
-        print("Blobs Found:", datasets_list)
+        # print("Blobs Found:", datasets_list)
         return jsonify({"table": datasets_list}), 200
     except Exception as e:
         print("Error:", str(e))
@@ -137,6 +137,7 @@ def validate_columns():
     transformed_data = transform_rules(data)
     global sums
     sums = transformed_data
+    print("validate_columns-output",sums)
     return jsonify({"status": "success", "message": "Validations received", "data": data})
 
 
@@ -151,7 +152,7 @@ def run_validations():
     data = request.json
     if current_table is None:
         return jsonify({"message": "No table selected"}), 400
-
+    
     if df is None or df.count() == 0:
         return jsonify({"message": "No file uploaded or the file is empty"}), 400
 
@@ -394,7 +395,6 @@ validation_map = {
     'isnull': lambda df, col: df.expect_column_values_to_be_null(col),
     'isblank': lambda df, col: df.expect_column_values_to_match_regex(col, r'^\s*$'),
     'isboolean': lambda df, col: df.expect_column_values_to_be_of_type(col, 'BooleanType'),
-
     'isnegativenumber': lambda df, col: df.expect_column_values_to_be_less_than(col, 0),
     'ispositivenumber': lambda df, col: df.expect_column_values_to_be_greater_than(col, 0),
     'isnumber': lambda df, col: df.expect_column_values_to_be_of_type(col, 'IntegerType'),
@@ -641,7 +641,7 @@ def data_send_schema():
         return jsonify({"message": f"Failed to process data. Error: {str(e)}"}), 500
  
  
-user_session = {"user_id": None}  # Global variable to store user session
+# Global variable to store user session
 
 @app.route('/userID-fetch', methods=['POST'])
 def set_user_id():

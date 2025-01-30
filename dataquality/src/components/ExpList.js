@@ -171,7 +171,7 @@ const ExpList = () => {
     navigate('/rules'); // Navigate back without reloading the page
   };
   
-  localStorage.clear();
+  // localStorage.clear();
 
   const handleExecute = () => {
     console.log('Executing validations and expectations...');
@@ -205,7 +205,7 @@ const ExpList = () => {
       setSummaryData(location.state.summaryData);
       console.log("summary is sent here :> ",summaryData);
     }
-  }, [location.state]);
+  }, [location.state.summaryData]);
  
   return (
     <div className="summary-container">
