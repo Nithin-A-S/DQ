@@ -121,17 +121,18 @@ const ReportComponent = () => {
         <table className="report-list-table">
           <thead>
             <tr>
-              <th>Report</th>
+              <th>Report Name</th>
+              <th>Score</th>
               <th>Date</th>
               <th>Dataset</th>
-              
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
             {Object.keys(reports).map((reportId) => (
               <tr key={reportId}>
-                <td>{reportId}</td>
+                <td>{reports[reportId].report_name || "N/A"}</td>
+                <td>{reports[reportId].score || "N/A"}</td>
                 <td>{reports[reportId].execution_date || "N/A"}</td>
                 <td>{reports[reportId].current_table || "N/A"}</td>
                 <td>

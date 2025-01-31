@@ -28,9 +28,6 @@ const ShowReport = () => {
           <strong>Table Name:</strong> {report.current_table || "N/A"}
         </div>
         <div>
-          <strong>Source:</strong> {report.source || "N/A"}
-        </div>
-        <div>
           <strong>Score:</strong> {report.score || "N/A"}
         </div>
         <div>
@@ -39,42 +36,44 @@ const ShowReport = () => {
       </div>
 
       {/* Table for Validation Results */}
-      <table className="report-table">
-        <thead>
-          <tr>
-            <th>Column Name</th>
-            <th>Dataset</th>
-            <th>Validation/Expectation</th>
-            <th>Element Count</th>
-            <th>Unexpected Count</th>
-            <th>Unexpected %</th>
-            <th>Unexpected % (Non-Missing)</th>
-            <th>Unexpected % (Total)</th>
-            <th>Success</th>
-          </tr>
-        </thead>
-        <tbody>
-          {report.validation_results.map((validation, index) => (
-            <tr key={index}>
-              <td>{validation.expectation_config.kwargs.column}</td>
-              <td>{report.current_table}</td>
-              <td>{validation.expectation_config.expectation_type}</td>
-              <td>{validation.result.element_count}</td>
-              <td>{validation.result.unexpected_count}</td>
-              <td>{validation.result.unexpected_percent}%</td>
-              <td>{validation.result.unexpected_percent_nonmissing}%</td>
-              <td>{validation.result.unexpected_percent_total}%</td>
-              <td>
-                {validation.success ? (
-                  <span style={{ color: "green" }}>Pass</span>
-                ) : (
-                  <span style={{ color: "red" }}>Fail</span>
-                )}
-              </td>
+      <div className="report-table-container">
+        <table className="report-table">
+          <thead>
+            <tr>
+              <th>Column Name</th>
+              <th>Dataset</th>
+              <th>Validation/Expectation</th>
+              <th>Element Count</th>
+              <th>Unexpected Count</th>
+              <th>Unexpected %</th>
+              <th>Unexpected % (Non-Missing)</th>
+              <th>Unexpected % (Total)</th>
+              <th>Success</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {report.validation_results.map((validation, index) => (
+              <tr key={index}>
+                <td>{validation.expectation_config.kwargs.column}</td>
+                <td>{report.current_table}</td>
+                <td>{validation.expectation_config.expectation_type}</td>
+                <td>{validation.result.element_count}</td>
+                <td>{validation.result.unexpected_count}</td>
+                <td>{validation.result.unexpected_percent}%</td>
+                <td>{validation.result.unexpected_percent_nonmissing}%</td>
+                <td>{validation.result.unexpected_percent_total}%</td>
+                <td>
+                  {validation.success ? (
+                    <span style={{ color: "green" }}>Pass</span>
+                  ) : (
+                    <span style={{ color: "red" }}>Fail</span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       
       <button onClick={() => navigate(-1)} className="back-button">
         Go Back

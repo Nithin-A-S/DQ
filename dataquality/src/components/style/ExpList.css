@@ -151,4 +151,47 @@ h2 {
   100% {
     transform: rotate(360deg);
   }
+}/* ExpList Component Styles */
+.exp-list-container {
+  padding: 20px;
+}
+
+.exp-list-input-group {
+  margin-bottom: 20px;
+}
+
+.exp-list-input-group label {
+  display: block;
+  font-size: 16px;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: white;
+}
+
+.exp-list-input {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+  background-color: #f9f9f9;
+  color: #333;
+  transition: border-color 0.3s, background-color 0.3s;
+}
+
+.exp-list-input:focus {
+  border-color: #4CAF50;
+  outline: none;
+  background-color: #fff;
+}
+
+.exp-list-input:invalid {
+  border-color: #e74c3c;
+}
+
+.error-message {
+  color: red;
+  font-size: 14px;
+  margin-top: 8px;
 }

@@ -19,6 +19,7 @@ database = client["csvfolder"]
 tasks_collection = database["DQ-datasets"]
 users_collection = database.get_collection("DQ-users")
 report_collections=database["DQ-reports"]
+report_names_col=database["DQ-reportname"]
 
 
 app = Flask(__name__)
@@ -32,7 +33,8 @@ datasets_list = []
 sums = {}
 df = pd.DataFrame()
 flag=""
-
+user_session = {"user_id": None}
+report_name=""
 @app.route('/register-user', methods=['POST'])
 def register_user():
     try:
@@ -134,7 +136,9 @@ def get_expectations():
 @app.route('/validate_columns', methods=['POST'])
 def validate_columns():
     data = request.json
-    transformed_data = transform_rules(data)
+    validation_data = data.get("validationData", [])
+    report_name = data.get("reportName", "")
+    transformed_data = transform_rules(validation_data)
     global sums
     sums = transformed_data
     print("validate_columns-output",sums)
@@ -147,17 +151,17 @@ def get_summary():
     return jsonify({"status": "success", "data": sums})
 
 
-@app.route('/run-validations', methods=['POST'])
+@app.route('/test-1', methods=['POST'])
 def run_validations():
     data = request.json
-    if current_table is None:
-        return jsonify({"message": "No table selected"}), 400
+    # if current_table is None:
+    #     return jsonify({"message": "No table selected"}), 400
     
-    if df is None or df.count() == 0:
-        return jsonify({"message": "No file uploaded or the file is empty"}), 400
+    # if df is None or df.count() == 0:
+    #     return jsonify({"message": "No file uploaded or the file is empty"}), 400
 
-    if user_session["user_id"] is None:
-        return jsonify({"message": "User not logged in"}), 403
+    # if user_session["user_id"] is None:
+    #     return jsonify({"message": "User not logged in"}), 403
 
     # Capture the current date and time
     curr_date = datetime.now()
@@ -182,7 +186,8 @@ def run_validations():
         "validation_results": validation_results,
         "current_table": current_table,
         "execution_date": curr_date.strftime("%Y-%m-%d %H:%M:%S") ,
-        "score":average_score # Format date and time
+        "score":average_score ,
+        "report_name": report_name # Format date and time
     }
 
     report_collection.update_one(
@@ -191,7 +196,7 @@ def run_validations():
     )
     
     print(average_score)
-
+    validation_results=1
     return jsonify({"message": "Validation results stored successfully", "validation_results": validation_results})
 
 def calculate_score(validation_data):
@@ -667,15 +672,7 @@ def get_user_id():
     return jsonify({"user_id": user_id}), 200
 
 def calculate_score(validation_data):
-    """
-    Calculate the average of unexpected_percent from the validation results.
 
-    Args:
-        validation_data (dict): A dictionary containing validation results.
-
-    Returns:
-        float: The average of unexpected_percent values.
-    """
     try:
         validation_results = validation_data.get("validation_results", [])
         if not validation_results:
@@ -698,6 +695,36 @@ def calculate_score(validation_data):
     except Exception as e:
         print(f"Error calculating score: {e}")
         return 0.0  # Return 0 in case of an error
+@app.route('/report-names', methods=['POST'])
+def store_report_name():
+    data = request.json
+    report_name = data.get('report_name')
+    current_user = data.get('username')  # Extract username from request
+
+    if not report_name or not current_user:
+        return jsonify({"error": "Username and Report Name are required"}), 400
+
+    report_names_col = database["DQ-reportname"]
+
+    # Insert or update the report name for the user
+    report_names_col.update_one(
+        {"username": current_user},
+        {"$set": {"report_name": report_name}},
+        upsert=True
+    )
+
+    return jsonify({"message": "Report name stored successfully"}), 200
+
+
+@app.route('/test-1s', methods=['POST'])
+def test_1():
+    # Get the JSON data sent from the frontend
+    data = request.get_json()
+    # Print the received data in the console
+    print("Received data in test-1:", data)
+    
+    # Return a response to acknowledge receipt
+    return jsonify({"message": "Data received successfully", "received_data": data}), 200
 
 if __name__ == '__main__':
     app.run(debug=True)

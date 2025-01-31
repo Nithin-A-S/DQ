@@ -9,6 +9,7 @@ const DataCsvUpload = () => {
   const [tableList, setTableList] = useState([]);
   const [selectedTable, setSelectedTable] = useState("");
   const [schema, setSchema] = useState([]);
+  const [reportName, setReportName] = useState("");
   const [expectations] = useState([
     "isEmail",
     "isAlphabet",
@@ -43,7 +44,7 @@ const DataCsvUpload = () => {
     } else {
       console.error("No tables received from the previous page.");
     }
-  }, []);
+  }, [csvfiles]);
  
  useEffect(() =>{
   fetch("http://127.0.0.1:5000/get-user-id")
@@ -52,43 +53,7 @@ const DataCsvUpload = () => {
       setCurrUser(data.user_id)
     })
   },[]);
- 
-  useEffect(() => {
-    const savedValidations =
-      JSON.parse(localStorage.getItem("selectedValidations")) || {};
-    const savedExpectations =
-      JSON.parse(localStorage.getItem("columnExpectations")) || {};
-    const savedSelectedTable = localStorage.getItem("selectedTable");
- 
-    setSelectedValidations(savedValidations);
-    setColumnExpectations(savedExpectations);
-    setSelectedTable(savedSelectedTable || "");
- 
-    console.log("Loaded from localStorage:", {
-      savedValidations,
-      savedExpectations,
-      savedSelectedTable,
-    });
-  }, []);
- 
-  useEffect(() => {
-    localStorage.setItem(
-      "selectedValidations",
-      JSON.stringify(selectedValidations)
-    );
-  }, [selectedValidations]);
- 
-  useEffect(() => {
-    localStorage.setItem(
-      "columnExpectations",
-      JSON.stringify(columnExpectations)
-    );
-  }, [columnExpectations]);
- 
-  useEffect(() => {
-    localStorage.setItem("selectedTable", selectedTable);
-  }, [selectedTable]);
- 
+  
   useEffect(() => {
     localStorage.clear();
     const savedValidations =
@@ -125,6 +90,43 @@ const DataCsvUpload = () => {
   useEffect(() => {
     localStorage.setItem("selectedTable", selectedTable);
   }, [selectedTable]);
+  
+  console.log("DATA_SEND_SCHEMA",currUser,csvfiles);
+
+  useEffect(() => {
+    if (selectedTable) {
+      fetch("http://127.0.0.1:5000/data-send-schema", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: currUser , csvfiles: selectedTable }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          setSchema(data.schema);
+ 
+          const updatedValidations = {};
+          const updatedExpectations = {};
+          const updatedColumnTypes = {};
+          data.schema.forEach((col) => {
+            updatedValidations[col.column] =
+              selectedValidations[col.column] || [];
+            updatedExpectations[col.column] =
+              columnExpectations[col.column] || [];
+            updatedColumnTypes[col.column] = col.type; // Store the data type
+          });
+ 
+          setSelectedValidations(updatedValidations);
+          setColumnExpectations(updatedExpectations);
+          setColumnDataType(updatedColumnTypes); // Set column data types
+ 
+          console.log(
+            "Updated Validations and Expectations after schema fetch:",
+            { updatedValidations, updatedExpectations }
+          );
+        })
+        .catch((error) => console.error("Error fetching schema:", error));
+    }
+  }, [selectedTable]);
  
  
   const handleValidationChange = (column, validation) => {
@@ -141,6 +143,10 @@ const DataCsvUpload = () => {
   };
  
   const handleNextClick = () => {
+    if (!reportName.trim()) {
+      alert("Report Name is required");
+      return;
+    }
     const validationData = schema
       .map((col) => ({
         column: col.column,
@@ -164,7 +170,7 @@ const DataCsvUpload = () => {
     fetch("http://127.0.0.1:5000/validate_columns", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(validationData),
+      body: JSON.stringify({validationData,reportName }),
     })
       .then((response) => response.json())
       .then((data) => console.log("Submitted data:", data))
@@ -225,7 +231,14 @@ const DataCsvUpload = () => {
             </li>
           ))}
         </ul>
-      )}
+      )}         <h2>Report Name</h2> <input
+      type="text"
+      placeholder="Enter Report Name"
+      value={reportName}
+      onChange={(e) => setReportName(e.target.value)}
+      required
+      className="data-csv-upload report-name-input"
+    />
     </div>
  
     <div className="data-csv-upload schema-section">
@@ -340,6 +353,3 @@ const DataCsvUpload = () => {
 };
  
 export default DataCsvUpload;
- 
- 
- 
